@@ -1,0 +1,12 @@
+[
+  { "code": "HWH", "name": "Howrah Junction" },
+  { "code": "NDLS", "name": "New Delhi" },
+  { "code": "CSMT", "name": "Chhatrapati Shivaji Maharaj Terminus" },
+  { "code": "MAS", "name": "Chennai Central" },
+  { "code": "SBC", "name": "KSR Bengaluru" },
+  { "code": "BCT", "name": "Mumbai Central" },
+  { "code": "BZA", "name": "Vijayawada Junction" },
+  { "code": "KGP", "name": "Kharagpur Junction" },
+  { "code": "PNBE", "name": "Patna Junction" },
+  { "code": "ADI", "name": "Ahmedabad Junction" }
+]
