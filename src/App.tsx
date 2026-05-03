@@ -8,6 +8,7 @@ import WhyRailSetu from "./components/landing/WhyRailSetu";
 import CTA from "./components/landing/CTA";
 import Footer from "./components/Footer";
 import SearchResults from "./pages/SearchResults";
+import SmartRoute from "./pages/SmartRoute";
 import { getStationsLocal, saveStationsLocal } from "./services/stationDB";
 import type { Station } from "./utils/AppInterfaces";
 
@@ -67,6 +68,7 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/search" element={<SearchResults />} />
+        <Route path="/smart-route" element={<SmartRoute />} />
       </Routes>
     </div>
   )

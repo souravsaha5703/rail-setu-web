@@ -5,9 +5,11 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import TrainCard from '../components/TrainCard';
 import type { TrainInfo } from '../components/TrainCard';
-import { Calendar as CalendarIcon, Loader2, AlertCircle, Search } from 'lucide-react';
+import { Calendar as CalendarIcon, Loader2, AlertCircle, Search, Route as RouteIcon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const SearchResults: React.FC = () => {
+    const navigate = useNavigate();
     const { from, to, date } = useSelector((state: RootState) => state.search);
     const [trains, setTrains] = useState<TrainInfo[]>([]);
     const [loading, setLoading] = useState(true);
@@ -71,6 +73,15 @@ const SearchResults: React.FC = () => {
 
         fetchTrains();
     }, [from, to, date]);
+
+    // Determine if we should show the Smart Connect rescue feature
+    const hasAvailableSeats = trains.some(train => 
+        train.classAvailability.some(c => 
+            c.displayStatus.toUpperCase().includes("AVAILABLE") || 
+            c.displayStatus.toUpperCase().includes("CURR_AV")
+        )
+    );
+    const showSmartConnect = !loading && !error && (!hasAvailableSeats || trains.length === 0);
 
     // Default dates for the tabs based on selected date or today
     const baseDate = date ? new Date(date) : new Date();
@@ -165,22 +176,59 @@ const SearchResults: React.FC = () => {
                             </button>
                         </div>
                     ) : trains.length > 0 ? (
-                        trains.map((train, idx) => (
-                            <TrainCard key={idx} train={train} />
-                        ))
+                        <>
+                            {trains.map((train, idx) => (
+                                <TrainCard key={idx} train={train} />
+                            ))}
+                            
+                            {/* Waitlist Trigger Button */}
+                            {showSmartConnect && (
+                                <div className="mt-4 flex flex-col items-center justify-center p-6 bg-primary/5 border border-primary/20 rounded-xl">
+                                    <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2">No confirmed seats available?</h3>
+                                    <p className="text-muted-foreground mb-4 text-center text-sm sm:text-base max-w-md">Our AI-powered Route-Breaker can find you a multi-leg journey with confirmed tickets.</p>
+                                    <button 
+                                        onClick={() => navigate('/smart-route')}
+                                        className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-bold hover:brightness-110 transition-all flex items-center gap-2"
+                                    >
+                                        <RouteIcon size={18} />
+                                        Try RailSetu Smart Connect
+                                    </button>
+                                </div>
+                            )}
+                        </>
                     ) : (
                         <div className="flex-1 flex flex-col items-center justify-center py-12 text-center">
                             <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mb-4">
                                 <Search className="w-8 h-8 text-muted-foreground" />
                             </div>
-                            <h3 className="text-lg font-bold text-foreground">No Trains Found</h3>
-                            <p className="text-muted-foreground text-sm">We couldn't find any trains for the selected route and date.</p>
+                            <h3 className="text-lg font-bold text-foreground">No Direct Trains Found</h3>
+                            <p className="text-muted-foreground text-sm mb-6">We couldn't find any direct trains for the selected route and date.</p>
+                            <button 
+                                onClick={() => navigate('/smart-route')}
+                                className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-bold hover:brightness-110 transition-all flex items-center gap-2"
+                            >
+                                <RouteIcon size={18} />
+                                Try RailSetu Smart Connect
+                            </button>
                         </div>
                     )}
                 </div>
             </main>
             
             <Footer />
+
+            {/* Floating Action Button for Smart Connect */}
+            {showSmartConnect && trains.length > 0 && (
+                <div className="fixed bottom-6 right-6 z-40 hidden sm:block">
+                    <button 
+                        onClick={() => navigate('/smart-route')}
+                        className="px-5 py-3 bg-primary text-primary-foreground rounded-full shadow-lg shadow-primary/30 font-bold hover:scale-105 transition-all flex items-center gap-2 animate-in fade-in slide-in-from-bottom-4 duration-500"
+                    >
+                        <RouteIcon size={18} />
+                        No seats? Try Smart Connect
+                    </button>
+                </div>
+            )}
         </div>
     );
 };
