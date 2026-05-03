@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, Clock, TrainFront, ShieldCheck, ShieldAlert } from 'lucide-react';
+import { ArrowRight, Clock, TrainFront } from 'lucide-react';
 import type { TrainInfo, ClassAvailability } from './TrainCard';
 
 interface SmartRouteCardProps {
