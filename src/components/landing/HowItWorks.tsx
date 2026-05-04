@@ -40,7 +40,7 @@ const HowItWorks: React.FC = () => {
     <section
       id="how-it-works"
       ref={ref}
-      className="relative py-16 sm:py-24 lg:py-32 overflow-hidden"
+      className="relative py-20 sm:py-28 lg:py-36 overflow-hidden"
     >
       {/* Background */}
       <div className="absolute inset-0 bg-accent/30 pointer-events-none" />
@@ -53,60 +53,60 @@ const HowItWorks: React.FC = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
-          className="text-center max-w-2xl mx-auto mb-16 lg:mb-20"
+          className="text-center max-w-3xl mx-auto mb-16 lg:mb-24"
         >
-          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/8 border border-primary/15 text-xs font-semibold uppercase tracking-wider text-primary-foreground mb-4">
-            How It Works
+          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-[10px] sm:text-xs font-bold uppercase tracking-[0.15em] text-primary-foreground mb-5">
+            Process Overview
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-foreground tracking-tight">
+          <h2 className="text-3xl xs:text-4xl sm:text-5xl font-bold text-foreground tracking-tight leading-[1.1]">
             Three Steps to{" "}
             <span className="bg-linear-to-r from-primary to-[oklch(0.78_0.16_70)] bg-clip-text text-transparent">
               Confirmed Seats
             </span>
           </h2>
-          <p className="mt-3 sm:mt-4 text-muted-foreground text-base sm:text-lg leading-relaxed px-2 sm:px-0">
+          <p className="mt-4 sm:mt-6 text-muted-foreground text-base sm:text-lg lg:text-xl leading-relaxed max-w-2xl mx-auto">
             RailSetu works behind the scenes to find what traditional booking
             platforms miss — hidden availability through intelligent route splitting.
           </p>
         </motion.div>
 
         {/* Steps */}
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 relative">
           {steps.map((step, i) => (
             <motion.div
               key={step.number}
               initial={{ opacity: 0, y: 40 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.15 * (i + 1) }}
-              className="relative group"
+              className="relative"
             >
-              {/* Connector line */}
+              {/* Connector line (Desktop only) */}
               {i < steps.length - 1 && (
-                <div className="hidden md:block absolute top-12 left-[calc(50%+40px)] right-[-calc(50%-40px)] w-[calc(100%-40px)] h-px">
-                  <div className="w-full h-full border-t-2 border-dashed border-primary/20" />
+                <div className="hidden md:block absolute top-[4.5rem] left-[60%] w-full h-[2px] z-0">
+                  <div className="w-[80%] h-full border-t-2 border-dashed border-primary/20" />
                 </div>
               )}
 
               <div
-                className={`relative bg-card rounded-2xl border ${step.accent} p-8 h-full transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1`}
+                className={`relative z-10 bg-card/50 backdrop-blur-sm rounded-3xl border ${step.accent} p-6 sm:p-8 lg:p-10 h-full transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-2 group`}
               >
-                {/* Step number */}
-                <div className="absolute -top-3 -right-2 w-8 h-8 rounded-full bg-primary text-[11px] font-bold text-primary-foreground flex items-center justify-center shadow-md shadow-primary/25">
+                {/* Step number indicator */}
+                <div className="absolute -top-3 -right-2 sm:-top-4 sm:-right-3 w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-primary text-xs sm:text-sm font-black text-primary-foreground flex items-center justify-center shadow-xl shadow-primary/30 rotate-12 group-hover:rotate-0 transition-transform duration-300">
                   {step.number}
                 </div>
 
-                {/* Icon */}
+                {/* Icon wrapper */}
                 <div
-                  className={`w-14 h-14 rounded-xl ${step.color} flex items-center justify-center mb-6`}
+                  className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl ${step.color} flex items-center justify-center mb-6 sm:mb-8 shadow-sm`}
                 >
-                  <step.icon size={24} />
+                  <step.icon size={28} className="sm:size-8" />
                 </div>
 
                 {/* Content */}
-                <h3 className="text-lg font-semibold text-foreground mb-3">
+                <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-3 sm:mb-4">
                   {step.title}
                 </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
                   {step.description}
                 </p>
               </div>

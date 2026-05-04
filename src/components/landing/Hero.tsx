@@ -13,62 +13,6 @@ import {
   ArrowLeftRight,
   ChevronRight,
 } from "lucide-react";
-import {
-  IsometricTrain,
-  IsometricRoute,
-  IsometricTicket,
-  IsometricNetwork,
-  IsometricShield,
-} from "../icons/IsometricIcons";
-
-/* ──── small floating isometric decorators ──── */
-const FloatingIcon: React.FC<{
-  children: React.ReactNode;
-  x: string;
-  y: string;
-  delay?: number;
-  duration?: number;
-  size?: "sm" | "md" | "lg";
-  rotate?: number;
-  hideOnMobile?: boolean;
-}> = ({
-  children,
-  x,
-  y,
-  delay = 0,
-  duration = 5,
-  size = "sm",
-  rotate = 0,
-  hideOnMobile = false,
-}) => {
-  const scale = size === "lg" ? 1 : size === "md" ? 0.7 : 0.45;
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.5 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: delay + 0.6, duration: 0.8 }}
-      className={`absolute pointer-events-none select-none ${
-        hideOnMobile ? "hidden md:block" : ""
-      }`}
-      style={{ left: x, top: y }}
-    >
-      <motion.div
-        animate={{ y: [0, -10, 0], rotate: [rotate, rotate + 3, rotate] }}
-        transition={{
-          duration,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay,
-        }}
-        style={{ transform: `scale(${scale})` }}
-        className="opacity-[0.18] dark:opacity-[0.12]"
-      >
-        {children}
-      </motion.div>
-    </motion.div>
-  );
-};
-
 const Hero: React.FC = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -152,7 +96,7 @@ const Hero: React.FC = () => {
   return (
     <section
       id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden px-4 sm:px-6"
+      className="relative min-h-screen lg:min-h-dvh flex items-center justify-center overflow-hidden px-4 sm:px-6"
     >
       {/* ─── Subtle background gradient ─── */}
       <div className="absolute inset-0 pointer-events-none">
@@ -188,42 +132,15 @@ const Hero: React.FC = () => {
         />
       </div>
 
-      {/* ─── Floating isometric icons ─── */}
-      {/* Show fewer icons on mobile to avoid clutter */}
-      <FloatingIcon x="6%" y="12%" delay={0} duration={5.5} size="md" rotate={-8} hideOnMobile>
-        <IsometricTrain size={120} />
-      </FloatingIcon>
-      <FloatingIcon x="82%" y="8%" delay={1.2} duration={6} size="sm" rotate={5} hideOnMobile>
-        <IsometricRoute size={120} />
-      </FloatingIcon>
-      <FloatingIcon x="3%" y="55%" delay={0.6} duration={4.5} size="sm" rotate={-4} hideOnMobile>
-        <IsometricTicket size={120} />
-      </FloatingIcon>
-      <FloatingIcon x="88%" y="48%" delay={1.8} duration={5} size="md" rotate={6} hideOnMobile>
-        <IsometricShield size={120} />
-      </FloatingIcon>
-      <FloatingIcon x="12%" y="78%" delay={0.3} duration={6.5} size="sm" rotate={-3} hideOnMobile>
-        <IsometricNetwork size={120} />
-      </FloatingIcon>
-      <FloatingIcon x="78%" y="76%" delay={2} duration={5.2} size="sm" rotate={8} hideOnMobile>
-        <IsometricTrain size={120} />
-      </FloatingIcon>
-      <FloatingIcon x="28%" y="6%" delay={1.5} duration={7} size="sm" rotate={12} hideOnMobile>
-        <IsometricShield size={120} />
-      </FloatingIcon>
-      <FloatingIcon x="68%" y="85%" delay={0.9} duration={5.8} size="sm" rotate={-6} hideOnMobile>
-        <IsometricRoute size={120} />
-      </FloatingIcon>
-
       {/* ─── Center content ─── */}
-      <div className="relative z-10 w-full max-w-4xl mx-auto pt-24 pb-8 sm:pt-20 sm:pb-12 flex flex-col items-center text-center">
+      <div className="relative z-10 w-full max-w-5xl mx-auto pt-28 pb-12 sm:pt-20 sm:pb-16 flex flex-col items-center text-center">
         {/* Badge */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.6 }}
         >
-          <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-xs sm:text-sm font-medium text-primary-foreground">
+          <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-[10px] sm:text-xs md:text-sm font-medium text-primary-foreground">
             <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-primary animate-pulse" />
             Smart Route Intelligence
           </span>
@@ -234,10 +151,10 @@ const Hero: React.FC = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35, duration: 0.7 }}
-          className="mt-5 sm:mt-6 text-3xl sm:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1] tracking-tight"
+          className="mt-5 sm:mt-8 text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-foreground leading-[1.1] tracking-tight"
         >
           Break the Route.{" "}
-          <br className="hidden xs:block" />
+          <br className="hidden sm:block" />
           <span className="relative inline-block">
             <span className="relative z-10 bg-linear-to-r from-primary to-[oklch(0.78_0.16_70)] bg-clip-text text-transparent">
               Book Confirmed.
@@ -256,7 +173,7 @@ const Hero: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.6 }}
-          className="mt-4 sm:mt-5 text-base sm:text-lg text-muted-foreground max-w-xl leading-relaxed px-2 sm:px-0"
+          className="mt-4 sm:mt-6 text-sm sm:text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl leading-relaxed px-4 sm:px-0"
         >
           When direct tickets show{" "}
           <span className="text-foreground font-medium">Waitlisted</span>,
@@ -270,20 +187,20 @@ const Hero: React.FC = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.65, duration: 0.7 }}
-          className="mt-8 sm:mt-10 w-full bg-card border border-border rounded-2xl p-2 sm:p-2.5 shadow-xl shadow-black/5"
+          className="mt-10 sm:mt-12 w-full bg-card/80 backdrop-blur-md border border-border rounded-2xl sm:rounded-3xl p-2 sm:p-3 shadow-2xl shadow-black/10"
         >
           {/* Mobile: stacked  |  Tablet+: horizontal row */}
-          <div className="flex flex-col lg:flex-row lg:items-stretch gap-2">
+          <div className="flex flex-col lg:flex-row lg:items-stretch gap-2.5">
             {/* ── From + Swap + To row (on tablet they sit side by side) ── */}
-            <div className="flex flex-col sm:flex-row sm:items-stretch gap-2 flex-2 min-w-0" ref={searchContainerRef}>
+            <div className="flex flex-col sm:flex-row sm:items-stretch gap-2.5 flex-2 min-w-0" ref={searchContainerRef}>
               {/* From */}
               <div className="relative flex-1">
                 <div 
-                  className={`flex items-center gap-3 px-4 py-3 sm:py-3 rounded-xl bg-accent/50 hover:bg-accent transition-colors min-w-0 border border-transparent ${activeDropdown === "from" ? "ring-2 ring-primary/50 border-primary/30 bg-background" : ""}`}
+                  className={`flex items-center gap-3 px-4 py-3 sm:py-4 rounded-xl sm:rounded-2xl bg-accent/50 hover:bg-accent transition-colors min-w-0 border border-transparent ${activeDropdown === "from" ? "ring-2 ring-primary/50 border-primary/30 bg-background" : ""}`}
                 >
-                  <MapPin size={18} className="text-primary shrink-0" />
+                  <MapPin size={20} className="text-primary shrink-0" />
                   <div className="flex-1 min-w-0 text-left">
-                    <span className="block text-[10px] sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+                    <span className="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                       From
                     </span>
                     <input
@@ -295,7 +212,7 @@ const Hero: React.FC = () => {
                         setActiveDropdown("from");
                       }}
                       placeholder="Enter source station"
-                      className="w-full bg-transparent text-sm font-medium text-foreground placeholder:text-muted-foreground/60 outline-none mt-0.5"
+                      className="w-full bg-transparent text-sm sm:text-base font-semibold text-foreground placeholder:text-muted-foreground/40 outline-none mt-0.5"
                     />
                   </div>
                 </div>
@@ -304,22 +221,23 @@ const Hero: React.FC = () => {
                 <AnimatePresence>
                   {activeDropdown === "from" && fromSuggestions.length > 0 && (
                     <motion.div
-                      initial={{ opacity: 0, y: -5 }}
+                      initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -5 }}
-                      className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-lg shadow-black/10 overflow-hidden z-50"
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-2xl shadow-black/20 overflow-hidden z-50 max-h-[300px] overflow-y-auto"
                     >
                       {fromSuggestions.map((station) => (
                         <div
                           key={station.code}
                           onClick={() => handleSelectStation("from", station)}
-                          className="flex items-center gap-3 px-4 py-3 hover:bg-accent cursor-pointer transition-colors"
+                          className="flex items-center gap-4 px-5 py-4 hover:bg-accent cursor-pointer transition-colors border-b border-border last:border-0"
                         >
-                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                             <span className="text-primary text-xs font-bold">{station.code}</span>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium text-foreground truncate">{station.name}</div>
+                          <div className="flex-1 min-w-0 text-left">
+                            <div className="text-sm sm:text-base font-bold text-foreground truncate">{station.name}</div>
+                            <div className="text-xs text-muted-foreground">Major Station</div>
                           </div>
                         </div>
                       ))}
@@ -329,28 +247,28 @@ const Hero: React.FC = () => {
               </div>
 
               {/* Swap button — visible on sm+ between From/To, hidden on mobile */}
-              <div className="hidden sm:flex items-center justify-center -mx-1 z-10">
+              <div className="hidden sm:flex items-center justify-center -mx-2.5 z-10">
                 <button
                   onClick={swapStations}
-                  className="flex items-center justify-center w-9 h-9 rounded-full border border-border bg-background hover:bg-accent transition-colors shadow-sm group"
+                  className="flex items-center justify-center w-10 h-10 rounded-full border border-border bg-background hover:bg-accent transition-all shadow-md group active:scale-90"
                   aria-label="Swap stations"
                 >
                   <ArrowLeftRight
-                    size={14}
+                    size={16}
                     className="text-muted-foreground group-hover:text-primary transition-colors"
                   />
                 </button>
               </div>
 
               {/* Mobile-only swap row */}
-              <div className="flex sm:hidden items-center justify-center -my-1 z-10">
+              <div className="flex sm:hidden items-center justify-center -my-2.5 z-10">
                 <button
                   onClick={swapStations}
-                  className="flex items-center justify-center w-8 h-8 rounded-full border border-border bg-background hover:bg-accent transition-colors shadow-sm group"
+                  className="flex items-center justify-center w-9 h-9 rounded-full border border-border bg-background hover:bg-accent transition-all shadow-md group active:scale-90"
                   aria-label="Swap stations"
                 >
                   <ArrowLeftRight
-                    size={13}
+                    size={14}
                     className="text-muted-foreground group-hover:text-primary transition-colors rotate-90"
                   />
                 </button>
@@ -359,11 +277,11 @@ const Hero: React.FC = () => {
               {/* To */}
               <div className="relative flex-1">
                 <div 
-                  className={`flex items-center gap-3 px-4 py-3 sm:py-3 rounded-xl bg-accent/50 hover:bg-accent transition-colors min-w-0 border border-transparent ${activeDropdown === "to" ? "ring-2 ring-destructive/50 border-destructive/30 bg-background" : ""}`}
+                  className={`flex items-center gap-3 px-4 py-3 sm:py-4 rounded-xl sm:rounded-2xl bg-accent/50 hover:bg-accent transition-colors min-w-0 border border-transparent ${activeDropdown === "to" ? "ring-2 ring-destructive/50 border-destructive/30 bg-background" : ""}`}
                 >
-                  <MapPin size={18} className="text-destructive shrink-0" />
+                  <MapPin size={20} className="text-destructive shrink-0" />
                   <div className="flex-1 min-w-0 text-left">
-                    <span className="block text-[10px] sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+                    <span className="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                       To
                     </span>
                     <input
@@ -375,7 +293,7 @@ const Hero: React.FC = () => {
                         setActiveDropdown("to");
                       }}
                       placeholder="Enter destination"
-                      className="w-full bg-transparent text-sm font-medium text-foreground placeholder:text-muted-foreground/60 outline-none mt-0.5"
+                      className="w-full bg-transparent text-sm sm:text-base font-semibold text-foreground placeholder:text-muted-foreground/40 outline-none mt-0.5"
                     />
                   </div>
                 </div>
@@ -384,22 +302,23 @@ const Hero: React.FC = () => {
                 <AnimatePresence>
                   {activeDropdown === "to" && toSuggestions.length > 0 && (
                     <motion.div
-                      initial={{ opacity: 0, y: -5 }}
+                      initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -5 }}
-                      className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-lg shadow-black/10 overflow-hidden z-50"
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-2xl shadow-black/20 overflow-hidden z-50 max-h-[300px] overflow-y-auto"
                     >
                       {toSuggestions.map((station) => (
                         <div
                           key={station.code}
                           onClick={() => handleSelectStation("to", station)}
-                          className="flex items-center gap-3 px-4 py-3 hover:bg-accent cursor-pointer transition-colors"
+                          className="flex items-center gap-4 px-5 py-4 hover:bg-accent cursor-pointer transition-colors border-b border-border last:border-0"
                         >
-                          <div className="w-8 h-8 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
+                          <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
                             <span className="text-destructive text-xs font-bold">{station.code}</span>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium text-foreground truncate">{station.name}</div>
+                          <div className="flex-1 min-w-0 text-left">
+                            <div className="text-sm sm:text-base font-bold text-foreground truncate">{station.name}</div>
+                            <div className="text-xs text-muted-foreground">Major Station</div>
                           </div>
                         </div>
                       ))}
@@ -410,18 +329,18 @@ const Hero: React.FC = () => {
             </div>
 
             {/* ── Departure Date ── */}
-            <div className="flex-1 flex items-center gap-3 px-4 py-3 rounded-xl bg-accent/50 hover:bg-accent transition-colors min-w-0">
-              <CalendarDays size={18} className="text-primary shrink-0" />
+            <div className="flex-1 flex items-center gap-3 px-4 py-3 sm:py-4 rounded-xl sm:rounded-2xl bg-accent/50 hover:bg-accent transition-colors min-w-0">
+              <CalendarDays size={20} className="text-primary shrink-0" />
               <div className="flex-1 min-w-0 text-left">
-                <span className="block text-[10px] sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
-                  Departure Date
+                <span className="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                  Departure
                 </span>
                 <input
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
                   min={formatISO(today)}
-                  className="w-full bg-transparent text-sm font-medium text-foreground outline-none mt-0.5 [scheme:light] dark:[scheme:dark]"
+                  className="w-full bg-transparent text-sm sm:text-base font-semibold text-foreground outline-none mt-0.5 [scheme:light] dark:[scheme:dark] cursor-pointer"
                 />
               </div>
             </div>
@@ -432,24 +351,24 @@ const Hero: React.FC = () => {
                 dispatch(setSearchData({ from: selectedFrom, to: selectedTo, date }));
                 navigate("/search");
               }}
-              className="flex items-center justify-center gap-2 px-6 sm:px-8 py-3.5 bg-primary text-primary-foreground rounded-xl font-semibold text-sm hover:brightness-105 transition-all shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 group shrink-0"
+              className="flex items-center justify-center gap-3 px-8 sm:px-10 py-4 sm:py-5 bg-primary text-primary-foreground rounded-xl sm:rounded-2xl font-bold text-base hover:brightness-105 transition-all shadow-xl shadow-primary/20 hover:shadow-primary/40 group shrink-0"
             >
-              <Search size={16} />
-              <span>Search</span>
+              <Search size={20} />
+              <span>Search Trains</span>
               <ChevronRight
-                size={16}
-                className="transition-transform group-hover:translate-x-0.5"
+                size={18}
+                className="transition-transform group-hover:translate-x-1"
               />
             </button>
           </div>
 
           {/* Quick date pills */}
-          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 px-2 sm:px-3 pt-2.5 sm:pt-3 pb-1">
+          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 px-3 pt-4 sm:pt-5 pb-2">
             <button
               onClick={() => setDate(formatISO(tomorrow))}
-              className={`px-3 py-1 text-xs font-medium rounded-full border transition-colors ${
+              className={`px-4 py-1.5 text-xs font-bold rounded-full border transition-all ${
                 date === formatISO(tomorrow)
-                  ? "bg-primary/15 border-primary/30 text-primary-foreground"
+                  ? "bg-primary/20 border-primary/40 text-primary-foreground"
                   : "border-border text-muted-foreground hover:bg-accent hover:text-foreground"
               }`}
             >
@@ -457,9 +376,9 @@ const Hero: React.FC = () => {
             </button>
             <button
               onClick={() => setDate(formatISO(dayAfter))}
-              className={`px-3 py-1 text-xs font-medium rounded-full border transition-colors ${
+              className={`px-4 py-1.5 text-xs font-bold rounded-full border transition-all ${
                 date === formatISO(dayAfter)
-                  ? "bg-primary/15 border-primary/30 text-primary-foreground"
+                  ? "bg-primary/20 border-primary/40 text-primary-foreground"
                   : "border-border text-muted-foreground hover:bg-accent hover:text-foreground"
               }`}
             >

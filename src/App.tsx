@@ -5,7 +5,6 @@ import Hero from "./components/landing/Hero";
 import HowItWorks from "./components/landing/HowItWorks";
 import Features from "./components/landing/Features";
 import WhyRailSetu from "./components/landing/WhyRailSetu";
-import CTA from "./components/landing/CTA";
 import Footer from "./components/Footer";
 import SearchResults from "./pages/SearchResults";
 import SmartRoute from "./pages/SmartRoute";
@@ -20,7 +19,6 @@ const LandingPage = () => (
       <HowItWorks />
       <Features />
       <WhyRailSetu />
-      <CTA />
     </main>
     <Footer />
   </>
