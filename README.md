@@ -1,73 +1,98 @@
-# React + TypeScript + Vite
+# 🛤️ RailSetu
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Intelligent Route Optimization for Indian Railways**
 
-Currently, two official plugins are available:
+RailSetu is a sophisticated web application designed to solve one of the biggest challenges for Indian Railway passengers: **Waitlisted Tickets**. While traditional platforms only show direct point-to-point availability, RailSetu's "Route-Breaker" engine identifies strategic junctions and splits journeys into multi-leg itineraries to unlock hidden, confirmed seats.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+![RailSetu Hero](https://images.unsplash.com/photo-1474487024268-5807b524623f?q=80&w=2000&auto=format&fit=crop)
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## ✨ Key Features
 
-## Expanding the ESLint configuration
+- **🚀 Smart Route Analysis**: Automatically identifies optimal junctions to split waitlisted journeys into confirmed segments.
+- **🧠 AI-Powered Reasoning**: Evaluates layover safety, midnight transfers, and train reliability to rank the best possible itineraries.
+- **⚡ Real-Time Availability**: Parallelized segment checks providing results in under 3 seconds.
+- **🛡️ Safety-First Connections**: Filters out risky transfers, ensuring no tight layovers or midnight arrivals at small stations.
+- **📍 8,000+ Station Network**: A complete local registry of Indian Railways stations with junction rankings and geo-coordinates.
+- **📱 Responsive Design**: Fully optimized experience across mobile, tablet, and desktop devices.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🛠️ Technology Stack
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- **Frontend**: [React 18](https://reactjs.org/) + [Vite](https://vitejs.dev/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **State Management**: [Redux Toolkit](https://redux-toolkit.js.org/)
+- **Animations**: [Framer Motion](https://www.framer.com/motion/) (motion/react)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Local Data**: [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) (via custom service)
+- **Search**: [Fuse.js](https://fusejs.io/) for lightweight fuzzy search
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+---
+
+## 🚦 Getting Started
+
+### Prerequisites
+- Node.js (v18 or higher)
+- npm or yarn
+
+### Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/rail-setu-web.git
+   ```
+2. Navigate to the project directory:
+   ```bash
+   cd rail-setu-web
+   ```
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+4. Create a `.env` file in the root and add your API URL:
+   ```env
+   VITE_API_URL=https://your-api-endpoint.com
+   ```
+
+### Running Locally
+```bash
+npm run dev
+```
+The app will be available at `http://localhost:5173`.
+
+---
+
+## 🏗️ Project Structure
+
+```text
+src/
+├── components/         # Reusable UI components
+│   ├── landing/       # Hero, Features, HowItWorks, etc.
+│   └── ...
+├── pages/              # Main application pages (SearchResults, SmartRoute)
+├── store/              # Redux state configuration
+├── services/           # API and IndexedDB services
+├── utils/              # Interfaces and helper functions
+└── App.tsx             # Main routing and entry point
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🛡️ License
+Distributed under the MIT License. See `LICENSE` for more information.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
+
+## 🤝 Contributing
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+Built with ❤️ for Indian Railways passengers.
