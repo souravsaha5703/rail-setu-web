@@ -14,7 +14,7 @@ RailSetu is a sophisticated web application designed to solve one of the biggest
 - **🧠 AI-Powered Reasoning**: Evaluates layover safety, midnight transfers, and train reliability to rank the best possible itineraries.
 - **⚡ Real-Time Availability**: Parallelized segment checks providing results in under 3 seconds.
 - **🛡️ Safety-First Connections**: Filters out risky transfers, ensuring no tight layovers or midnight arrivals at small stations.
-- **📍 8,000+ Station Network**: A complete local registry of Indian Railways stations with junction rankings and geo-coordinates.
+- **📍 10,102+ Station Network**: A complete local registry of Indian Railways stations with junction rankings and geo-coordinates.
 - **📱 Responsive Design**: Fully optimized experience across mobile, tablet, and desktop devices.
 
 ---
