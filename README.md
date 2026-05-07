@@ -4,7 +4,7 @@
 
 RailSetu is a sophisticated web application designed to solve one of the biggest challenges for Indian Railway passengers: **Waitlisted Tickets**. While traditional platforms only show direct point-to-point availability, RailSetu's "Route-Breaker" engine identifies strategic junctions and splits journeys into multi-leg itineraries to unlock hidden, confirmed seats.
 
-![RailSetu Hero](https://images.unsplash.com/photo-1474487024268-5807b524623f?q=80&w=2000&auto=format&fit=crop)
+![RailSetu Hero](https://res.cloudinary.com/dez9wcn3g/image/upload/v1778166941/Screenshot_2026-05-07_204401_qhsmi3.png)
 
 ---
 
