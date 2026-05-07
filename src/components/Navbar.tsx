@@ -42,9 +42,12 @@ const Navbar: React.FC = () => {
         <div className="flex items-center justify-between h-14 sm:h-16 lg:h-20">
           {/* Logo */}
           <a href="/" className="flex items-center gap-2 sm:gap-2.5 group">
-            <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-primary flex items-center justify-center overflow-hidden">
-              <span className="text-xs sm:text-sm font-bold text-white relative z-10">RS</span>
-              <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent" />
+            <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-background flex items-center justify-center overflow-hidden border border-border shadow-sm group-hover:scale-105 transition-transform duration-300">
+              <img 
+                src="/favicon/android-chrome-192x192.png" 
+                alt="RailSetu Logo" 
+                className="w-full h-full object-cover"
+              />
             </div>
             <span className="text-lg sm:text-xl font-bold text-foreground tracking-tight">
               Rail<span className="text-primary">Setu</span>

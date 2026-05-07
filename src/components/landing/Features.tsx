@@ -47,7 +47,7 @@ const features = [
   },
   {
     icon: IsometricNetwork,
-    title: "8,000+ Station Network",
+    title: "10,102+ Station Network",
     description:
       "Complete Indian Railways station registry with junction rankings, geo-coordinates, and connectivity data — all local, all fast.",
     tag: "Coverage",

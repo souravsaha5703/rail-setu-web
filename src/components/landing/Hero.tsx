@@ -395,7 +395,7 @@ const Hero: React.FC = () => {
           className="mt-8 sm:mt-10 flex items-center justify-center gap-6 sm:gap-10 lg:gap-14"
         >
           {[
-            { value: "8,000+", label: "Stations" },
+            { value: "10,102+", label: "Stations" },
             { value: "99%", label: "Route Coverage" },
             { value: "< 3s", label: "Search Speed" },
           ].map((stat, i) => (

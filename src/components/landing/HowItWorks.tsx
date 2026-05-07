@@ -82,7 +82,7 @@ const HowItWorks: React.FC = () => {
             >
               {/* Connector line (Desktop only) */}
               {i < steps.length - 1 && (
-                <div className="hidden md:block absolute top-[4.5rem] left-[60%] w-full h-[2px] z-0">
+                <div className="hidden md:block absolute top-18 left-[60%] w-full h-[2px] z-0">
                   <div className="w-[80%] h-full border-t-2 border-dashed border-primary/20" />
                 </div>
               )}

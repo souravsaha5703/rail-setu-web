@@ -25,7 +25,7 @@ const reasons = [
     icon: TrendingUp,
     title: "Instant, Offline-Ready Station Search",
     description:
-      "All 8,000+ stations with geo-coordinates, junction rankings, and connectivity maps stored locally. Station lookup is instant — even without internet.",
+      "All 10,102+ stations with geo-coordinates, junction rankings, and connectivity maps stored locally. Station lookup is instant — even without internet.",
   },
 ];
 
