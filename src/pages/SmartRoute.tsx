@@ -33,95 +33,111 @@ const SmartRoute: React.FC = () => {
     const [routes, setRoutes] = useState<SmartRouteResult[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [progress, setProgress] = useState<string>("Initializing smart search...");
 
     useEffect(() => {
-        const fetchSmartRoutes = async () => {
-            if (!from || !to) {
-                setError("Please select source and destination stations.");
-                setLoading(false);
-                return;
-            }
+        if (!from || !to) {
+            setError("Please select source and destination stations.");
+            setLoading(false);
+            return;
+        }
 
+        setLoading(true);
+        setError(null);
+        setProgress("Connecting to Route-Breaker Engine...");
+
+        let formattedDate = "";
+        if (date) {
+            const [year, month, day] = date.split('-');
+            formattedDate = `${day}-${month}-${year}`;
+        } else {
+            const today = new Date();
+            formattedDate = today.toLocaleDateString('en-GB').replace(/\//g, '-');
+        }
+
+        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+        const url = `${apiUrl}/api/trains/smart-connect?sourceCode=${from.code}&destCode=${to.code}&date=${formattedDate}`;
+        
+        const eventSource = new EventSource(url);
+
+        eventSource.onmessage = (event) => {
             try {
-                setLoading(true);
-                setError(null);
-
-                let formattedDate = "";
-                if (date) {
-                    const [year, month, day] = date.split('-');
-                    formattedDate = `${day}-${month}-${year}`;
-                } else {
-                    const today = new Date();
-                    formattedDate = today.toLocaleDateString('en-GB').replace(/\//g, '-');
+                const result = JSON.parse(event.data);
+                
+                if (result.error) {
+                    setError(result.error);
+                    setLoading(false);
+                    eventSource.close();
+                    return;
                 }
 
-                const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
-                const response = await fetch(`${apiUrl}/api/trains/smart-connect?sourceCode=${from.code}&destCode=${to.code}&date=${formattedDate}`);
-                
-                if (!response.ok) {
-                    throw new Error("Failed to fetch smart routes");
-                }
+                if (result.message === "Done!") {
+                    const availabilityData = result.data;
+                    if (availabilityData && Array.isArray(availabilityData)) {
+                        const generatedRoutes: SmartRouteResult[] = [];
+                        let routeId = 1;
 
-                const result = await response.json();
-                
-                if (result.success && result.data) {
-                    const generatedRoutes: SmartRouteResult[] = [];
-                    let routeId = 1;
+                        availabilityData.forEach((junctionOption: any) => {
+                            const leg1Trains = junctionOption.leg1?.data?.data || [];
+                            const leg2Trains = junctionOption.leg2?.data?.data || [];
 
-                    // Iterate through each junction recommendation
-                    result.data.forEach((junctionOption: any) => {
-                        const leg1Trains = junctionOption.leg1?.data?.data || [];
-                        const leg2Trains = junctionOption.leg2?.data?.data || [];
-
-                        // The backend already processed the optimal trains.
-                        // We will pair them up and display all combinations.
-                        // To avoid UI freezing, we only take the first few combinations per junction if there are many.
-                        let pairsAdded = 0;
-
-                        for (let i = 0; i < leg1Trains.length; i++) {
-                            const t1 = leg1Trains[i];
-                            const arrMin = parseTime(t1.arrival);
-                            
-                            for (let j = 0; j < leg2Trains.length; j++) {
-                                // Limit to 10 combinations per junction so the UI is responsive
-                                if (pairsAdded >= 10) break;
+                            let pairsAdded = 0;
+                            for (let i = 0; i < leg1Trains.length; i++) {
+                                const t1 = leg1Trains[i];
+                                const arrMin = parseTime(t1.arrival);
                                 
-                                const t2 = leg2Trains[j];
-                                let depMin = parseTime(t2.departure);
-                                
-                                // Calculate layover time. If departure is less than arrival, assume it departs the next day.
-                                let waitMinutes = depMin - arrMin;
-                                if (waitMinutes < 0) {
-                                    waitMinutes += 24 * 60;
+                                for (let j = 0; j < leg2Trains.length; j++) {
+                                    if (pairsAdded >= 10) break;
+                                    
+                                    const t2 = leg2Trains[j];
+                                    let depMin = parseTime(t2.departure);
+                                    
+                                    let waitMinutes = depMin - arrMin;
+                                    if (waitMinutes < 0) {
+                                        waitMinutes += 24 * 60;
+                                    }
+
+                                    generatedRoutes.push({
+                                        id: routeId++,
+                                        junction: { name: junctionOption.stationName, code: junctionOption.stationCode },
+                                        waitTime: formatWaitTime(waitMinutes),
+                                        leg1: t1,
+                                        leg2: t2
+                                    });
+                                    pairsAdded++;
                                 }
-
-                                generatedRoutes.push({
-                                    id: routeId++,
-                                    junction: { name: junctionOption.stationName, code: junctionOption.stationCode },
-                                    waitTime: formatWaitTime(waitMinutes),
-                                    leg1: t1,
-                                    leg2: t2
-                                });
-                                
-                                pairsAdded++;
+                                if (pairsAdded >= 10) break;
                             }
-                            if (pairsAdded >= 10) break;
-                        }
-                    });
+                        });
 
-                    setRoutes(generatedRoutes);
+                        setRoutes(generatedRoutes);
+                        if (generatedRoutes.length === 0) {
+                            setError("No confirmed seat combinations found via junctions.");
+                        }
+                    } else {
+                        setError("No smart routes found.");
+                    }
+                    setLoading(false);
+                    eventSource.close();
                 } else {
-                    setError(result.message || "No smart routes found.");
+                    // Update the progress message shown to the user
+                    setProgress(result.message);
                 }
             } catch (err) {
-                console.error("Error fetching smart routes:", err);
-                setError("Something went wrong while connecting to the smart routing engine.");
-            } finally {
-                setLoading(false);
+                console.error("Error parsing SSE data:", err);
             }
         };
 
-        fetchSmartRoutes();
+        eventSource.onerror = (err) => {
+            console.error("EventSource failed:", err);
+            setError("Connection to search engine lost. Please try again.");
+            setLoading(false);
+            eventSource.close();
+        };
+
+        return () => {
+            eventSource.close();
+        };
     }, [from, to, date]);
     
     return (
@@ -158,7 +174,7 @@ const SmartRoute: React.FC = () => {
                                     <Sparkles size={16} className="text-primary/50" />
                                 </div>
                             </div>
-                            <h3 className="text-lg font-bold mt-4 text-foreground">Analyzing Billions of Routes</h3>
+                            <h3 className="text-lg font-bold mt-4 text-foreground">{progress}</h3>
                             <p className="text-muted-foreground text-sm">Finding the perfect multi-leg connections...</p>
                         </div>
                     ) : error ? (
