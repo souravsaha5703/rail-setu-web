@@ -61,7 +61,7 @@ const Features: React.FC = () => {
   return (
     <section id="features" ref={ref} className="relative py-20 sm:py-28 lg:py-36 overflow-hidden">
       {/* Background orb - scaled for mobile */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] lg:w-[800px] lg:h-[800px] bg-primary/5 rounded-full blur-[80px] sm:blur-[120px] lg:blur-[160px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-75 h-75 sm:w-125 sm:h-125 lg:w-200 lg:h-200 bg-primary/5 rounded-full blur-[80px] sm:blur-[120px] lg:blur-[160px] pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section header */}
