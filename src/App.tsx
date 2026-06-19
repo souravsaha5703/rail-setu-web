@@ -2,9 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Hero from "./components/landing/Hero";
-import HowItWorks from "./components/landing/HowItWorks";
-import Features from "./components/landing/Features";
-import WhyRailSetu from "./components/landing/WhyRailSetu";
 import Footer from "./components/Footer";
 import SearchResults from "./pages/SearchResults";
 import SmartRoute from "./pages/SmartRoute";
@@ -17,9 +14,6 @@ const LandingPage = () => (
     <Navbar />
     <main>
       <Hero />
-      <HowItWorks />
-      <Features />
-      <WhyRailSetu />
     </main>
     <Footer />
   </>

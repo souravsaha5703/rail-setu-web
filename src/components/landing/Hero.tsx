@@ -133,7 +133,7 @@ const Hero: React.FC = () => {
       </div>
 
       {/* ─── Center content ─── */}
-      <div className="relative z-10 w-full max-w-5xl mx-auto pt-28 pb-12 sm:pt-20 sm:pb-16 flex flex-col items-center text-center">
+      <div className="relative z-10 w-full max-w-5xl mx-auto pt-20 pb-8 sm:pt-24 sm:pb-12 flex flex-col items-center text-center">
         {/* Badge */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -391,12 +391,12 @@ const Hero: React.FC = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.9, duration: 0.8 }}
-          className="mt-8 sm:mt-10 flex items-center justify-center gap-6 sm:gap-10 lg:gap-14"
+          transition={{ delay: 0.8, duration: 0.8 }}
+          className="mt-8 flex items-center justify-center gap-6 sm:gap-10 lg:gap-14"
         >
           {[
             { value: "10,102+", label: "Stations" },
-            { value: "99%", label: "Route Coverage" },
+            { value: "99.4%", label: "Accuracy" },
             { value: "< 3s", label: "Search Speed" },
           ].map((stat, i) => (
             <React.Fragment key={stat.label}>
@@ -410,6 +410,28 @@ const Hero: React.FC = () => {
                 </div>
               </div>
             </React.Fragment>
+          ))}
+        </motion.div>
+
+        {/* ─── Compact Utility Steps ─── */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.9, duration: 0.6 }}
+          className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-4xl mx-auto text-left"
+        >
+          {[
+            { step: "01", title: "Search Journey", desc: "Enter your source & destination stations" },
+            { step: "02", title: "Smart Connection", desc: "Choose route options if all direct seats are waitlisted" },
+            { step: "03", title: "View Break Journeys", desc: "Explore detailed split-leg routes and connection schedules" }
+          ].map((item) => (
+            <div key={item.step} className="flex gap-3.5 p-4 rounded-2xl bg-card/60 backdrop-blur-sm border border-border/80 hover:border-primary/30 transition-all duration-300">
+              <span className="text-xl font-extrabold text-primary shrink-0">{item.step}</span>
+              <div>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">{item.title}</h4>
+                <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{item.desc}</p>
+              </div>
+            </div>
           ))}
         </motion.div>
       </div>
