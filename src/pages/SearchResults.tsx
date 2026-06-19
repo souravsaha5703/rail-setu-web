@@ -85,14 +85,6 @@ const SearchResults: React.FC = () => {
 
     // Default dates for the tabs based on selected date or today
     const baseDate = date ? new Date(date) : new Date();
-    const dateTabs = Array.from({ length: 6 }).map((_, i) => {
-        const d = new Date(baseDate);
-        d.setDate(baseDate.getDate() + i);
-        return {
-            date: d,
-            isSelected: i === 0
-        };
-    });
 
     return (
         <div className="min-h-screen bg-accent/20 flex flex-col">
@@ -109,43 +101,20 @@ const SearchResults: React.FC = () => {
                     </p>
                 </div>
 
-                {/* Dates & Filters Card */}
-                <div className="bg-card border border-border rounded-xl shadow-sm mb-6 overflow-hidden">
-                    {/* Date Tabs */}
-                    <div className="flex border-b border-border overflow-x-auto scrollbar-hide">
-                        {dateTabs.map((tab, idx) => (
-                            <button 
-                                key={idx} 
-                                className={`flex-1 min-w-[100px] py-3 px-4 flex flex-col items-center justify-center border-r border-border last:border-r-0 hover:bg-accent transition-colors
-                                ${tab.isSelected ? 'border-b-2 border-b-primary bg-primary/5' : ''}`}
-                            >
-                                <span className={`text-sm font-semibold ${tab.isSelected ? 'text-primary' : 'text-foreground'}`}>
-                                    {tab.date.toLocaleDateString('en-IN', { weekday: 'short', day: '2-digit', month: 'short' })}
-                                </span>
-                            </button>
-                        ))}
-                        <button className="px-5 py-3 flex items-center justify-center hover:bg-accent transition-colors">
-                            <CalendarIcon size={20} className="text-muted-foreground" />
-                        </button>
+                {/* Journey Date Info Bar */}
+                <div className="bg-card border border-border rounded-xl shadow-sm mb-6 px-5 py-4 flex items-center justify-between bg-accent/10">
+                    <div className="flex items-center gap-2.5">
+                        <CalendarIcon size={18} className="text-primary" />
+                        <span className="text-sm font-semibold text-foreground">
+                            Journey Date: <span className="text-muted-foreground font-normal">{baseDate.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                        </span>
                     </div>
-
-                    {/* Quick Filters */}
-                    <div className="px-5 py-3 flex items-center gap-4 text-sm font-medium">
-                        <span className="text-foreground font-semibold">Quick Filters</span>
-                        <div className="flex-1"></div>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <div className="w-9 h-5 bg-accent border border-border rounded-full flex items-center px-0.5">
-                                <div className="w-4 h-4 bg-background rounded-full shadow-sm"></div>
-                            </div>
-                            <span className="text-muted-foreground">Best Available</span>
-                        </label>
-                        <label className="flex items-center gap-2 cursor-pointer">
-                            <div className="w-9 h-5 bg-accent border border-border rounded-full flex items-center px-0.5">
-                                <div className="w-4 h-4 bg-background rounded-full shadow-sm"></div>
-                            </div>
-                            <span className="text-muted-foreground">AC Only</span>
-                        </label>
-                    </div>
+                    <button 
+                        onClick={() => navigate('/')}
+                        className="text-xs font-bold text-primary hover:underline cursor-pointer"
+                    >
+                        Modify Search
+                    </button>
                 </div>
 
                 {/* Train List / States */}
