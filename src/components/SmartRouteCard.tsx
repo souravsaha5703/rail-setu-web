@@ -127,9 +127,6 @@ const SmartRouteCard: React.FC<SmartRouteCardProps> = ({ route }) => {
                 <div className="text-sm text-muted-foreground font-medium">
                     Total Starting Fare: <span className="font-bold text-foreground">₹{totalFare || '--'}</span>
                 </div>
-                <button className="px-5 py-2 bg-primary text-primary-foreground font-bold rounded-lg hover:brightness-110 transition-all text-sm">
-                    Book Both Tickets
-                </button>
             </div>
         </div>
     );
