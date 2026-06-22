@@ -34,6 +34,7 @@ const SmartRoute: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [progress, setProgress] = useState<string>("Initializing smart search...");
+    const [visibleCount, setVisibleCount] = useState(10);
 
     useEffect(() => {
         if (!from || !to) {
@@ -44,6 +45,7 @@ const SmartRoute: React.FC = () => {
 
         setLoading(true);
         setError(null);
+        setVisibleCount(10);
         setProgress("Connecting to Route-Breaker Engine...");
 
         let formattedDate = "";
@@ -80,16 +82,17 @@ const SmartRoute: React.FC = () => {
                         availabilityData.forEach((junctionOption: any) => {
                             const leg1Trains = junctionOption.leg1?.data?.data || [];
                             const leg2Trains = junctionOption.leg2?.data?.data || [];
+                            const seenPairs = new Set<string>();
 
-                            let pairsAdded = 0;
                             for (let i = 0; i < leg1Trains.length; i++) {
                                 const t1 = leg1Trains[i];
                                 const arrMin = parseTime(t1.arrival);
                                 
                                 for (let j = 0; j < leg2Trains.length; j++) {
-                                    if (pairsAdded >= 10) break;
-                                    
                                     const t2 = leg2Trains[j];
+                                    const pairKey = `${t1.trainNumber}_${t2.trainNumber}_${junctionOption.stationCode}`;
+                                    if (seenPairs.has(pairKey)) continue;
+
                                     let depMin = parseTime(t2.departure);
                                     
                                     let waitMinutes = depMin - arrMin;
@@ -104,9 +107,8 @@ const SmartRoute: React.FC = () => {
                                         leg1: t1,
                                         leg2: t2
                                     });
-                                    pairsAdded++;
+                                    seenPairs.add(pairKey);
                                 }
-                                if (pairsAdded >= 10) break;
                             }
                         });
 
@@ -192,15 +194,27 @@ const SmartRoute: React.FC = () => {
                             </button>
                         </div>
                     ) : routes.length > 0 ? (
-                        routes.map((route) => (
-                            <div key={route.id} className="flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                <div className="mb-3 text-lg font-bold text-foreground flex items-center gap-2">
-                                    <span className="w-2.5 h-2.5 rounded-full bg-primary shadow-sm shadow-primary/40"></span>
-                                    Via {route.junction.name} <span className="text-muted-foreground text-sm">({route.junction.code})</span>
+                        <>
+                            {routes.slice(0, visibleCount).map((route) => (
+                                <div key={route.id} className="flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                    <div className="mb-3 text-lg font-bold text-foreground flex items-center gap-2">
+                                        <span className="w-2.5 h-2.5 rounded-full bg-primary shadow-sm shadow-primary/40"></span>
+                                        Via {route.junction.name} <span className="text-muted-foreground text-sm">({route.junction.code})</span>
+                                    </div>
+                                    <SmartRouteCard route={route} />
                                 </div>
-                                <SmartRouteCard route={route} />
-                            </div>
-                        ))
+                            ))}
+                            {routes.length > visibleCount && (
+                                <div className="flex justify-center mt-6">
+                                    <button
+                                        onClick={() => setVisibleCount(prev => prev + 10)}
+                                        className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-sm hover:brightness-105 shadow-md shadow-primary/20 hover:shadow-lg transition-all cursor-pointer"
+                                    >
+                                        View More Routes ({routes.length - visibleCount} remaining)
+                                    </button>
+                                </div>
+                            )}
+                        </>
                     ) : (
                         <div className="flex-1 flex flex-col items-center justify-center py-12 text-center">
                             <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mb-4">
