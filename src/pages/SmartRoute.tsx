@@ -19,13 +19,6 @@ interface SmartRouteResult {
     leg2ArrivalDate?: string;
 }
 
-// Helpers for time calculation
-const parseTime = (timeStr: string) => {
-    if (!timeStr) return 0;
-    const [h, m] = timeStr.split(':').map(Number);
-    return h * 60 + m;
-};
-
 const formatWaitTime = (minutes: number) => {
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
