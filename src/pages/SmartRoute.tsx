@@ -13,6 +13,10 @@ interface SmartRouteResult {
     waitTime: string;
     leg1: TrainInfo;
     leg2: TrainInfo;
+    leg1DepartureDate?: string;
+    leg1ArrivalDate?: string;
+    leg2DepartureDate?: string;
+    leg2ArrivalDate?: string;
 }
 
 // Helpers for time calculation
@@ -80,36 +84,32 @@ const SmartRoute: React.FC = () => {
                         let routeId = 1;
 
                         availabilityData.forEach((junctionOption: any) => {
-                            const leg1Trains = junctionOption.leg1?.data?.data || [];
-                            const leg2Trains = junctionOption.leg2?.data?.data || [];
+                            const connections = junctionOption.successfulConnections || [];
                             const seenPairs = new Set<string>();
 
-                            for (let i = 0; i < leg1Trains.length; i++) {
-                                const t1 = leg1Trains[i];
-                                const arrMin = parseTime(t1.arrival);
-                                
-                                for (let j = 0; j < leg2Trains.length; j++) {
-                                    const t2 = leg2Trains[j];
-                                    const pairKey = `${t1.trainNumber}_${t2.trainNumber}_${junctionOption.stationCode}`;
-                                    if (seenPairs.has(pairKey)) continue;
+                            connections.forEach((conn: any) => {
+                                const t1 = conn.leg1Train;
+                                const t2 = conn.leg2Train;
+                                const waitMinutes = conn.waitTimeMinutes;
 
-                                    let depMin = parseTime(t2.departure);
-                                    
-                                    let waitMinutes = depMin - arrMin;
-                                    if (waitMinutes < 0) {
-                                        waitMinutes += 24 * 60;
-                                    }
+                                if (!t1 || !t2) return;
 
-                                    generatedRoutes.push({
-                                        id: routeId++,
-                                        junction: { name: junctionOption.stationName, code: junctionOption.stationCode },
-                                        waitTime: formatWaitTime(waitMinutes),
-                                        leg1: t1,
-                                        leg2: t2
-                                    });
-                                    seenPairs.add(pairKey);
-                                }
-                            }
+                                const pairKey = `${t1.trainNumber}_${t2.trainNumber}_${junctionOption.stationCode}`;
+                                if (seenPairs.has(pairKey)) return;
+
+                                generatedRoutes.push({
+                                    id: routeId++,
+                                    junction: { name: junctionOption.stationName, code: junctionOption.stationCode },
+                                    waitTime: formatWaitTime(waitMinutes),
+                                    leg1: t1,
+                                    leg2: t2,
+                                    leg1DepartureDate: formattedDate,
+                                    leg1ArrivalDate: conn.connectionDates?.leg1ArrivalDate || "",
+                                    leg2DepartureDate: conn.connectionDates?.leg2DepartureDate || "",
+                                    leg2ArrivalDate: conn.connectionDates?.leg2ArrivalDate || ""
+                                });
+                                seenPairs.add(pairKey);
+                            });
                         });
 
                         setRoutes(generatedRoutes);

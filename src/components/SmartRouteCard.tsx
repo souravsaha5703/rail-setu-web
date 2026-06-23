@@ -9,6 +9,10 @@ interface SmartRouteCardProps {
         waitTime: string;
         leg1: TrainInfo;
         leg2: TrainInfo;
+        leg1DepartureDate?: string;
+        leg1ArrivalDate?: string;
+        leg2DepartureDate?: string;
+        leg2ArrivalDate?: string;
     }
 }
 
@@ -49,7 +53,7 @@ const ClassBox: React.FC<{ cls: ClassAvailability }> = ({ cls }) => {
     );
 };
 
-const LegDisplay: React.FC<{ leg: TrainInfo; isFirst: boolean }> = ({ leg, isFirst }) => {
+const LegDisplay: React.FC<{ leg: TrainInfo; isFirst: boolean; departureDate?: string; arrivalDate?: string }> = ({ leg, isFirst, departureDate, arrivalDate }) => {
     return (
         <div className={`p-4 sm:p-5 flex flex-col gap-4 relative ${isFirst ? 'bg-card' : 'bg-primary/5 dark:bg-primary/10'}`}>
             <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center z-10">
@@ -70,6 +74,7 @@ const LegDisplay: React.FC<{ leg: TrainInfo; isFirst: boolean }> = ({ leg, isFir
                     <div className="text-left sm:text-right">
                         <div className="text-lg font-bold text-foreground">{leg.departure}</div>
                         <div className="text-xs text-muted-foreground font-medium">{leg.from.code}</div>
+                        {departureDate && <div className="text-xs text-muted-foreground">{departureDate}</div>}
                     </div>
                     
                     <div className="flex flex-col items-center min-w-[60px] sm:min-w-[80px]">
@@ -82,6 +87,7 @@ const LegDisplay: React.FC<{ leg: TrainInfo; isFirst: boolean }> = ({ leg, isFir
                     <div className="text-right sm:text-left">
                         <div className="text-lg font-bold text-foreground">{leg.arrival}</div>
                         <div className="text-xs text-muted-foreground font-medium">{leg.to.code}</div>
+                        {arrivalDate && <div className="text-xs text-muted-foreground">{arrivalDate}</div>}
                     </div>
                 </div>
             </div>
@@ -106,7 +112,7 @@ const SmartRouteCard: React.FC<SmartRouteCardProps> = ({ route }) => {
     return (
         <div className="w-full bg-card border border-border rounded-xl shadow-sm overflow-hidden flex flex-col relative">
             {/* Leg 1 */}
-            <LegDisplay leg={route.leg1} isFirst={true} />
+            <LegDisplay leg={route.leg1} isFirst={true} departureDate={route.leg1DepartureDate} arrivalDate={route.leg1ArrivalDate} />
             
             {/* The Gap Indicator */}
             <div className="relative h-14 bg-accent/30 border-y border-border flex items-center justify-center">
@@ -120,7 +126,7 @@ const SmartRouteCard: React.FC<SmartRouteCardProps> = ({ route }) => {
             </div>
 
             {/* Leg 2 */}
-            <LegDisplay leg={route.leg2} isFirst={false} />
+            <LegDisplay leg={route.leg2} isFirst={false} departureDate={route.leg2DepartureDate} arrivalDate={route.leg2ArrivalDate} />
             
             {/* Action Footer */}
             <div className="p-4 border-t border-border bg-accent/10 flex justify-between items-center z-10">
