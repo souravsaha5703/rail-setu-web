@@ -36,7 +36,7 @@ const ClassBox: React.FC<{ cls: ClassAvailability }> = ({ cls }) => {
     const colors = getStatusColor(cls.predictionPercent, cls.displayStatus);
     
     return (
-        <div className={`flex flex-col p-2 rounded-lg border ${colors.wrapper} min-w-[100px] shrink-0`}>
+        <div className={`flex flex-col p-2 rounded-lg border ${colors.wrapper} min-w-25 shrink-0`}>
             <div className="flex justify-between items-center mb-1">
                 <span className="font-bold text-foreground text-sm">{cls.class}</span>
                 <span className={`text-xs font-bold px-1.5 py-0.5 rounded-md bg-background ${colors.badge}`}>
@@ -77,9 +77,9 @@ const LegDisplay: React.FC<{ leg: TrainInfo; isFirst: boolean; departureDate?: s
                         {departureDate && <div className="text-xs text-muted-foreground">{departureDate}</div>}
                     </div>
                     
-                    <div className="flex flex-col items-center min-w-[60px] sm:min-w-[80px]">
+                    <div className="flex flex-col items-center min-w-15 sm:min-w-20">
                         <span className="text-[10px] text-muted-foreground font-medium mb-1">{leg.duration}</span>
-                        <div className="w-full h-[2px] bg-border relative">
+                        <div className="w-full h-0.5 bg-border relative">
                             <ArrowRight size={12} className="absolute right-0 top-1/2 -translate-y-1/2 text-border translate-x-1/2 bg-card rounded-full" />
                         </div>
                     </div>

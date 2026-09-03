@@ -34,12 +34,14 @@ const SmartRoute: React.FC = () => {
     const [visibleCount, setVisibleCount] = useState(10);
 
     useEffect(() => {
-        if (!from || !to) {
+        if (!from?.code || !to?.code) {
             setError("Please select source and destination stations.");
             setLoading(false);
             return;
         }
 
+        let isSubscribed = true;
+        let hasCompleted = false;
         setLoading(true);
         setError(null);
         setVisibleCount(10);
@@ -56,22 +58,49 @@ const SmartRoute: React.FC = () => {
 
         const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
         const url = `${apiUrl}/api/trains/smart-connect?sourceCode=${from.code}&destCode=${to.code}&date=${formattedDate}`;
-        
+
         const eventSource = new EventSource(url);
 
-        eventSource.onmessage = (event) => {
+        eventSource.onopen = () => {
+            console.log("[SmartRoute SSE] Connection opened successfully to:", url);
+        };
+
+        const handleMessage = (event: MessageEvent) => {
+            if (!isSubscribed) return;
             try {
-                const result = JSON.parse(event.data);
-                
+                let result: any;
+                try {
+                    result = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+                } catch {
+                    result = { message: event.data };
+                }
+
+                console.log(`[SmartRoute SSE received (${event.type})]:`, result);
+
                 if (result.error) {
+                    hasCompleted = true;
                     setError(result.error);
                     setLoading(false);
                     eventSource.close();
                     return;
                 }
 
-                if (result.message === "Done!") {
-                    const availabilityData = result.data;
+                const isDone =
+                    event.type === "done" ||
+                    event.type === "result" ||
+                    event.type === "complete" ||
+                    result.message === "Done!" ||
+                    result.message?.toLowerCase?.() === "done" ||
+                    result.message?.toLowerCase?.().includes("complete") ||
+                    result.status === "completed" ||
+                    result.status === "Done" ||
+                    (result.data && Array.isArray(result.data)) ||
+                    (result.response?.data && Array.isArray(result.response.data));
+
+                if (isDone) {
+                    hasCompleted = true;
+                    const availabilityData = result.data || result.response?.data || (Array.isArray(result) ? result : null);
+
                     if (availabilityData && Array.isArray(availabilityData)) {
                         const generatedRoutes: SmartRouteResult[] = [];
                         let routeId = 1;
@@ -114,31 +143,42 @@ const SmartRoute: React.FC = () => {
                     }
                     setLoading(false);
                     eventSource.close();
-                } else {
+                } else if (result.message) {
                     // Update the progress message shown to the user
-                    setProgress(result.message);
+                    setProgress(String(result.message));
                 }
             } catch (err) {
-                console.error("Error parsing SSE data:", err);
+                console.error("Error processing SSE data:", err);
             }
         };
 
+        eventSource.onmessage = handleMessage;
+        eventSource.addEventListener("progress", handleMessage as EventListener);
+        eventSource.addEventListener("done", handleMessage as EventListener);
+        eventSource.addEventListener("result", handleMessage as EventListener);
+        eventSource.addEventListener("complete", handleMessage as EventListener);
+
         eventSource.onerror = (err) => {
+            eventSource.close();
+            // If the search already completed, the server closing the stream is expected and NOT an error!
+            if (!isSubscribed || hasCompleted) return;
+
             console.error("EventSource failed:", err);
             setError("Connection to search engine lost. Please try again.");
             setLoading(false);
-            eventSource.close();
         };
 
         return () => {
+            isSubscribed = false;
+            hasCompleted = true;
             eventSource.close();
         };
-    }, [from, to, date]);
-    
+    }, [from?.code, to?.code, date]);
+
     return (
-        <div className="min-h-screen bg-accent/20 flex flex-col">
+        <div className="min-h-screen bg-card flex flex-col">
             <Navbar />
-            
+
             <main className="flex-1 w-full max-w-4xl mx-auto px-4 pt-24 pb-8 sm:pt-28">
                 <div className="mb-8">
                     <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center flex-wrap gap-3">
@@ -148,7 +188,7 @@ const SmartRoute: React.FC = () => {
                         <span>{to?.name || "Select Destination"}</span>
                     </h1>
                     <div className="flex items-center gap-2 mt-3">
-                        <span className="bg-primary/10 px-3 py-1 rounded-full font-bold text-primary flex items-center gap-1.5 text-xs sm:text-sm shadow-sm border border-primary/20">
+                        <span className="bg-primary/10 px-3 py-1 rounded-full font-bold text-primary flex items-center gap-1.5 text-xs sm:text-sm border border-muted/20">
                             <Sparkles size={14} />
                             Powered by Route-Breaker AI
                         </span>
@@ -160,7 +200,7 @@ const SmartRoute: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="flex flex-col gap-8 min-h-[400px]">
+                <div className="flex flex-col gap-8 min-h-100">
                     {loading ? (
                         <div className="flex-1 flex flex-col items-center justify-center py-12">
                             <div className="relative">
@@ -169,7 +209,7 @@ const SmartRoute: React.FC = () => {
                                     <Sparkles size={16} className="text-primary/50" />
                                 </div>
                             </div>
-                            <h3 className="text-lg font-bold mt-4 text-foreground">{progress}</h3>
+                            <h3 className="text-lg font-bold mt-4 text-foreground" aria-live="polite">{progress}</h3>
                             <p className="text-muted-foreground text-sm">Finding the perfect multi-leg connections...</p>
                         </div>
                     ) : error ? (
@@ -179,7 +219,7 @@ const SmartRoute: React.FC = () => {
                             </div>
                             <h3 className="text-lg font-bold text-foreground">Couldn't find routes</h3>
                             <p className="text-muted-foreground text-sm max-w-md">{error}</p>
-                            <button 
+                            <button
                                 onClick={() => window.location.reload()}
                                 className="mt-6 px-6 py-2 bg-primary text-primary-foreground rounded-lg font-semibold text-sm hover:brightness-105 transition-all"
                             >
@@ -201,7 +241,7 @@ const SmartRoute: React.FC = () => {
                                 <div className="flex justify-center mt-6">
                                     <button
                                         onClick={() => setVisibleCount(prev => prev + 10)}
-                                        className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-sm hover:brightness-105 shadow-md shadow-primary/20 hover:shadow-lg transition-all cursor-pointer"
+                                        className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-sm hover:brightness-105 transition-all cursor-pointer"
                                     >
                                         View More Routes ({routes.length - visibleCount} remaining)
                                     </button>
@@ -210,8 +250,8 @@ const SmartRoute: React.FC = () => {
                         </>
                     ) : (
                         <div className="flex-1 flex flex-col items-center justify-center py-12 text-center">
-                            <div className="w-16 h-16 bg-accent rounded-full flex items-center justify-center mb-4">
-                                <Search className="w-8 h-8 text-muted-foreground" />
+                            <div className="w-16 h-16 bg-card rounded-full flex items-center justify-center mb-4">
+                                <Search className="w-8 h-8 text-foreground" />
                             </div>
                             <h3 className="text-lg font-bold text-foreground">No Smart Routes Found</h3>
                             <p className="text-muted-foreground text-sm">We couldn't find any viable multi-leg connections for this journey.</p>
@@ -219,7 +259,7 @@ const SmartRoute: React.FC = () => {
                     )}
                 </div>
             </main>
-            
+
             <Footer />
         </div>
     );

@@ -26,7 +26,8 @@ const Hero: React.FC = () => {
 
   const [stations, setStations] = useState<Station[]>([]);
   const [activeDropdown, setActiveDropdown] = useState<"from" | "to" | null>(null);
-  
+  const [errors, setErrors] = useState<{ from?: string; to?: string; date?: string }>({});
+
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -75,11 +76,37 @@ const Hero: React.FC = () => {
     if (type === "from") {
       setFrom(value);
       setSelectedFrom(station);
+      setErrors((prev) => ({ ...prev, from: undefined }));
     } else {
       setTo(value);
       setSelectedTo(station);
+      setErrors((prev) => ({ ...prev, to: undefined }));
     }
     setActiveDropdown(null);
+  };
+
+  const handleSearch = () => {
+    const newErrors: { from?: string; to?: string; date?: string } = {};
+
+    if (!selectedFrom) {
+      newErrors.from = "Select a valid source station";
+    }
+    if (!selectedTo) {
+      newErrors.to = "Select a valid destination station";
+    }
+    if (selectedFrom && selectedTo && selectedFrom.code === selectedTo.code) {
+      newErrors.to = "Source and destination cannot match";
+    }
+    if (!date) {
+      newErrors.date = "Select departure date";
+    }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0 && selectedFrom && selectedTo) {
+      dispatch(setSearchData({ from: selectedFrom, to: selectedTo, date }));
+      navigate("/search");
+    }
   };
 
   /* Quick-pick dates */
@@ -156,7 +183,7 @@ const Hero: React.FC = () => {
           Break the Route.{" "}
           <br className="hidden sm:block" />
           <span className="relative inline-block">
-            <span className="relative z-10 bg-linear-to-r from-primary to-[oklch(0.78_0.16_70)] bg-clip-text text-transparent">
+            <span className="relative z-10 text-primary">
               Book Confirmed.
             </span>
             <motion.span
@@ -187,7 +214,7 @@ const Hero: React.FC = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.65, duration: 0.7 }}
-          className="mt-10 sm:mt-12 w-full bg-card/80 backdrop-blur-md border border-border rounded-2xl sm:rounded-3xl p-2 sm:p-3 shadow-2xl shadow-black/10"
+          className="mt-10 sm:mt-12 w-full bg-card border border-border rounded-xl p-2 sm:p-3"
         >
           {/* Mobile: stacked  |  Tablet+: horizontal row */}
           <div className="flex flex-col lg:flex-row lg:items-stretch gap-2.5">
@@ -195,8 +222,13 @@ const Hero: React.FC = () => {
             <div className="flex flex-col sm:flex-row sm:items-stretch gap-2.5 flex-2 min-w-0" ref={searchContainerRef}>
               {/* From */}
               <div className="relative flex-1">
-                <div 
-                  className={`flex items-center gap-3 px-4 py-3 sm:py-4 rounded-xl sm:rounded-2xl bg-accent/50 hover:bg-accent transition-colors min-w-0 border border-transparent ${activeDropdown === "from" ? "ring-2 ring-primary/50 border-primary/30 bg-background" : ""}`}
+                <div
+                  className={`flex items-center gap-3 px-4 py-3 sm:py-4 rounded-xl sm:rounded-2xl bg-accent/50 hover:bg-accent transition-colors min-w-0 border ${errors.from
+                    ? "border-destructive/50 ring-2 ring-destructive/20 bg-destructive/5"
+                    : activeDropdown === "from"
+                      ? "ring-2 ring-primary/50 border-primary/30 bg-background"
+                      : "border-transparent"
+                    }`}
                 >
                   <MapPin size={20} className="text-primary shrink-0" />
                   <div className="flex-1 min-w-0 text-left">
@@ -206,14 +238,24 @@ const Hero: React.FC = () => {
                     <input
                       type="text"
                       value={from}
-                      onFocus={() => setActiveDropdown("from")}
+                      onFocus={() => {
+                        setActiveDropdown("from");
+                        setErrors((prev) => ({ ...prev, from: undefined }));
+                      }}
                       onChange={(e) => {
                         setFrom(e.target.value);
+                        setSelectedFrom(null); // Force selection from autocomplete
                         setActiveDropdown("from");
+                        setErrors((prev) => ({ ...prev, from: undefined }));
                       }}
                       placeholder="Enter source station"
                       className="w-full bg-transparent text-sm sm:text-base font-semibold text-foreground placeholder:text-muted-foreground/40 outline-none mt-0.5"
                     />
+                    {errors.from && (
+                      <span className="block text-[10px] font-semibold text-destructive mt-0.5">
+                        {errors.from}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -224,7 +266,7 @@ const Hero: React.FC = () => {
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-2xl shadow-black/20 overflow-hidden z-50 max-h-75 overflow-y-auto"
+                      className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-lg overflow-hidden z-50 max-h-75 overflow-y-auto"
                     >
                       {fromSuggestions.map((station) => (
                         <div
@@ -250,7 +292,7 @@ const Hero: React.FC = () => {
               <div className="hidden sm:flex items-center justify-center -mx-2.5 z-10">
                 <button
                   onClick={swapStations}
-                  className="flex items-center justify-center w-10 h-10 rounded-full border border-border bg-background hover:bg-accent transition-all shadow-md group active:scale-90"
+                  className="flex items-center justify-center w-10 h-10 rounded-full border border-border bg-background hover:bg-accent transition-all group active:scale-90"
                   aria-label="Swap stations"
                 >
                   <ArrowLeftRight
@@ -264,7 +306,7 @@ const Hero: React.FC = () => {
               <div className="flex sm:hidden items-center justify-center -my-2.5 z-10">
                 <button
                   onClick={swapStations}
-                  className="flex items-center justify-center w-9 h-9 rounded-full border border-border bg-background hover:bg-accent transition-all shadow-md group active:scale-90"
+                  className="flex items-center justify-center w-9 h-9 rounded-full border border-border bg-background hover:bg-accent transition-all group active:scale-90"
                   aria-label="Swap stations"
                 >
                   <ArrowLeftRight
@@ -276,8 +318,13 @@ const Hero: React.FC = () => {
 
               {/* To */}
               <div className="relative flex-1">
-                <div 
-                  className={`flex items-center gap-3 px-4 py-3 sm:py-4 rounded-xl sm:rounded-2xl bg-accent/50 hover:bg-accent transition-colors min-w-0 border border-transparent ${activeDropdown === "to" ? "ring-2 ring-destructive/50 border-destructive/30 bg-background" : ""}`}
+                <div
+                  className={`flex items-center gap-3 px-4 py-3 sm:py-4 rounded-xl sm:rounded-2xl bg-accent/50 hover:bg-accent transition-colors min-w-0 border ${errors.to
+                    ? "border-destructive/50 ring-2 ring-destructive/20 bg-destructive/5"
+                    : activeDropdown === "to"
+                      ? "ring-2 ring-primary/50 border-primary/30 bg-background"
+                      : "border-transparent"
+                    }`}
                 >
                   <MapPin size={20} className="text-destructive shrink-0" />
                   <div className="flex-1 min-w-0 text-left">
@@ -287,14 +334,24 @@ const Hero: React.FC = () => {
                     <input
                       type="text"
                       value={to}
-                      onFocus={() => setActiveDropdown("to")}
+                      onFocus={() => {
+                        setActiveDropdown("to");
+                        setErrors((prev) => ({ ...prev, to: undefined }));
+                      }}
                       onChange={(e) => {
                         setTo(e.target.value);
+                        setSelectedTo(null); // Force selection from autocomplete
                         setActiveDropdown("to");
+                        setErrors((prev) => ({ ...prev, to: undefined }));
                       }}
                       placeholder="Enter destination"
                       className="w-full bg-transparent text-sm sm:text-base font-semibold text-foreground placeholder:text-muted-foreground/40 outline-none mt-0.5"
                     />
+                    {errors.to && (
+                      <span className="block text-[10px] font-semibold text-destructive mt-0.5">
+                        {errors.to}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -305,7 +362,7 @@ const Hero: React.FC = () => {
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-2xl shadow-black/20 overflow-hidden z-50 max-h-75 overflow-y-auto"
+                      className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-lg overflow-hidden z-50 max-h-75 overflow-y-auto"
                     >
                       {toSuggestions.map((station) => (
                         <div
@@ -329,7 +386,10 @@ const Hero: React.FC = () => {
             </div>
 
             {/* ── Departure Date ── */}
-            <div className="flex-1 flex items-center gap-3 px-4 py-3 sm:py-4 rounded-xl sm:rounded-2xl bg-accent/50 hover:bg-accent transition-colors min-w-0">
+            <div className={`flex-1 flex items-center gap-3 px-4 py-3 sm:py-4 rounded-xl sm:rounded-2xl bg-accent/50 hover:bg-accent transition-colors min-w-0 border ${errors.date
+              ? "border-destructive/50 ring-2 ring-destructive/20 bg-destructive/5"
+              : "border-transparent"
+              }`}>
               <CalendarDays size={20} className="text-primary shrink-0" />
               <div className="flex-1 min-w-0 text-left">
                 <span className="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
@@ -338,20 +398,25 @@ const Hero: React.FC = () => {
                 <input
                   type="date"
                   value={date}
-                  onChange={(e) => setDate(e.target.value)}
+                  onChange={(e) => {
+                    setDate(e.target.value);
+                    setErrors((prev) => ({ ...prev, date: undefined }));
+                  }}
                   min={formatISO(today)}
                   className="w-full bg-transparent text-sm sm:text-base font-semibold text-foreground outline-none mt-0.5 [scheme:light] dark:[scheme:dark] cursor-pointer"
                 />
+                {errors.date && (
+                  <span className="block text-[10px] font-semibold text-destructive mt-0.5">
+                    {errors.date}
+                  </span>
+                )}
               </div>
             </div>
 
             {/* ── Search button ── */}
-            <button 
-              onClick={() => {
-                dispatch(setSearchData({ from: selectedFrom, to: selectedTo, date }));
-                navigate("/search");
-              }}
-              className="flex items-center justify-center gap-3 px-8 sm:px-10 py-4 sm:py-5 bg-primary text-primary-foreground rounded-xl sm:rounded-2xl font-bold text-base hover:brightness-105 transition-all shadow-xl shadow-primary/20 hover:shadow-primary/40 group shrink-0"
+            <button
+              onClick={handleSearch}
+              className="flex items-center justify-center gap-3 px-8 sm:px-10 py-4 sm:py-5 bg-primary text-primary-foreground rounded-lg font-bold text-base hover:bg-primary/95 transition-all group shrink-0"
             >
               <Search size={20} />
               <span>Search Trains</span>
@@ -366,21 +431,19 @@ const Hero: React.FC = () => {
           <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 px-3 pt-4 sm:pt-5 pb-2">
             <button
               onClick={() => setDate(formatISO(tomorrow))}
-              className={`px-4 py-1.5 text-xs font-bold rounded-full border transition-all ${
-                date === formatISO(tomorrow)
-                  ? "bg-primary/20 border-primary/40 text-primary-foreground"
-                  : "border-border text-muted-foreground hover:bg-accent hover:text-foreground"
-              }`}
+              className={`px-4 py-1.5 text-xs font-bold rounded-full border transition-all ${date === formatISO(tomorrow)
+                ? "bg-primary/20 border-primary/40 text-primary-foreground"
+                : "border-border text-muted-foreground hover:bg-accent hover:text-foreground"
+                }`}
             >
               Tomorrow · {formatShort(tomorrow)}
             </button>
             <button
               onClick={() => setDate(formatISO(dayAfter))}
-              className={`px-4 py-1.5 text-xs font-bold rounded-full border transition-all ${
-                date === formatISO(dayAfter)
-                  ? "bg-primary/20 border-primary/40 text-primary-foreground"
-                  : "border-border text-muted-foreground hover:bg-accent hover:text-foreground"
-              }`}
+              className={`px-4 py-1.5 text-xs font-bold rounded-full border transition-all ${date === formatISO(dayAfter)
+                ? "bg-primary/20 border-primary/40 text-primary-foreground"
+                : "border-border text-muted-foreground hover:bg-accent hover:text-foreground"
+                }`}
             >
               Day After · {formatShort(dayAfter)}
             </button>
@@ -425,7 +488,7 @@ const Hero: React.FC = () => {
             { step: "02", title: "Smart Connection", desc: "Choose route options if all direct seats are waitlisted" },
             { step: "03", title: "View Break Journeys", desc: "Explore detailed split-leg routes and connection schedules" }
           ].map((item) => (
-            <div key={item.step} className="flex gap-3.5 p-4 rounded-2xl bg-card/60 backdrop-blur-sm border border-border/80 hover:border-primary/30 transition-all duration-300">
+            <div key={item.step} className="flex gap-3.5 p-4 rounded-lg bg-secondary/50 border border-border/80 hover:border-primary/30 transition-all duration-300">
               <span className="text-xl font-extrabold text-primary shrink-0">{item.step}</span>
               <div>
                 <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">{item.title}</h4>

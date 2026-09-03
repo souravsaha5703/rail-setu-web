@@ -25,7 +25,7 @@ const SearchResults: React.FC = () => {
             try {
                 setLoading(true);
                 setError(null);
-                
+
                 // Format date as DD-MM-YYYY for the backend
                 let formattedDate = "";
                 if (date) {
@@ -45,13 +45,13 @@ const SearchResults: React.FC = () => {
                 const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
                 // Updated endpoint to /api/trains/between
                 const response = await fetch(`${apiUrl}/api/trains/between?${params.toString()}`);
-                
+
                 if (!response.ok) {
                     throw new Error(`Failed to fetch trains: ${response.statusText}`);
                 }
 
                 const result = await response.json();
-                
+
                 // Adjusted parsing based on user's provided response structure
                 if (result.status === 200 && result.response && result.response.success) {
                     setTrains(result.response.data);
@@ -75,9 +75,9 @@ const SearchResults: React.FC = () => {
     }, [from, to, date]);
 
     // Determine if we should show the Smart Connect rescue feature
-    const hasAvailableSeats = trains.some(train => 
-        train.classAvailability.some(c => 
-            c.displayStatus.toUpperCase().includes("AVAILABLE") || 
+    const hasAvailableSeats = trains.some(train =>
+        train.classAvailability.some(c =>
+            c.displayStatus.toUpperCase().includes("AVAILABLE") ||
             c.displayStatus.toUpperCase().includes("CURR_AV")
         )
     );
@@ -89,7 +89,7 @@ const SearchResults: React.FC = () => {
     return (
         <div className="min-h-screen bg-accent/20 flex flex-col">
             <Navbar />
-            
+
             <main className="flex-1 w-full max-w-5xl mx-auto px-4 pt-24 pb-8 sm:pt-28">
                 {/* Header Section */}
                 <div className="mb-6">
@@ -102,14 +102,14 @@ const SearchResults: React.FC = () => {
                 </div>
 
                 {/* Journey Date Info Bar */}
-                <div className="bg-card border border-border rounded-xl shadow-sm mb-6 px-5 py-4 flex items-center justify-between bg-accent/10">
+                <div className="bg-card border border-border rounded-xl mb-6 px-5 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-2.5">
                         <CalendarIcon size={18} className="text-primary" />
                         <span className="text-sm font-semibold text-foreground">
                             Journey Date: <span className="text-muted-foreground font-normal">{baseDate.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
                         </span>
                     </div>
-                    <button 
+                    <button
                         onClick={() => navigate('/')}
                         className="text-xs font-bold text-primary hover:underline cursor-pointer"
                     >
@@ -118,7 +118,7 @@ const SearchResults: React.FC = () => {
                 </div>
 
                 {/* Train List / States */}
-                <div className="flex flex-col gap-5 min-h-[400px]">
+                <div className="flex flex-col gap-5 min-h-100">
                     {loading ? (
                         <div className="flex-1 flex flex-col items-center justify-center py-12">
                             <div className="relative">
@@ -137,7 +137,7 @@ const SearchResults: React.FC = () => {
                             </div>
                             <h3 className="text-lg font-bold text-foreground">Something went wrong</h3>
                             <p className="text-muted-foreground text-sm max-w-md">{error}</p>
-                            <button 
+                            <button
                                 onClick={() => window.location.reload()}
                                 className="mt-6 px-6 py-2 bg-primary text-primary-foreground rounded-lg font-semibold text-sm hover:brightness-105 transition-all"
                             >
@@ -149,13 +149,13 @@ const SearchResults: React.FC = () => {
                             {trains.map((train, idx) => (
                                 <TrainCard key={idx} train={train} />
                             ))}
-                            
+
                             {/* Waitlist Trigger Button */}
                             {showSmartConnect && (
                                 <div className="mt-4 flex flex-col items-center justify-center p-6 bg-primary/5 border border-primary/20 rounded-xl">
                                     <h3 className="text-lg sm:text-xl font-bold text-foreground mb-2">No confirmed seats available?</h3>
                                     <p className="text-muted-foreground mb-4 text-center text-sm sm:text-base max-w-md">Our AI-powered Route-Breaker can find you a multi-leg journey with confirmed tickets.</p>
-                                    <button 
+                                    <button
                                         onClick={() => navigate('/smart-route')}
                                         className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-bold hover:brightness-110 transition-all flex items-center gap-2"
                                     >
@@ -172,7 +172,7 @@ const SearchResults: React.FC = () => {
                             </div>
                             <h3 className="text-lg font-bold text-foreground">No Direct Trains Found</h3>
                             <p className="text-muted-foreground text-sm mb-6">We couldn't find any direct trains for the selected route and date.</p>
-                            <button 
+                            <button
                                 onClick={() => navigate('/smart-route')}
                                 className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-bold hover:brightness-110 transition-all flex items-center gap-2"
                             >
@@ -183,15 +183,15 @@ const SearchResults: React.FC = () => {
                     )}
                 </div>
             </main>
-            
+
             <Footer />
 
             {/* Floating Action Button for Smart Connect */}
             {showSmartConnect && trains.length > 0 && (
                 <div className="fixed bottom-6 right-6 z-40 hidden sm:block">
-                    <button 
+                    <button
                         onClick={() => navigate('/smart-route')}
-                        className="px-5 py-3 bg-primary text-primary-foreground rounded-full shadow-lg shadow-primary/30 font-bold hover:scale-105 transition-all flex items-center gap-2 animate-in fade-in slide-in-from-bottom-4 duration-500"
+                        className="px-5 py-3 bg-primary text-primary-foreground rounded-full font-bold hover:bg-primary/95 transition-all flex items-center gap-2 animate-in fade-in slide-in-from-bottom-4 duration-500"
                     >
                         <RouteIcon size={18} />
                         No seats? Try Smart Connect

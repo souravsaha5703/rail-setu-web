@@ -81,13 +81,13 @@ const TrainScheduleDrawer: React.FC<TrainScheduleDrawerProps> = ({ train, childr
       const trainNo = train.trainNumber;
       const date = formattedDate;
       const response = await fetch(`${apiUrl}/api/trains/schedule?trainNo=${trainNo}&date=${date}`);
-      
+
       if (!response.ok) {
         throw new Error(`Failed to fetch schedule: ${response.statusText}`);
       }
 
       const result = await response.json();
-      
+
       // Handle both wrapped (status/response) and unwrapped (direct data) responses
       const scheduleContainer = (result.status === 200 && result.response?.data) ? result.response.data : result.data;
       const routeData = scheduleContainer?.route;
@@ -97,7 +97,7 @@ const TrainScheduleDrawer: React.FC<TrainScheduleDrawerProps> = ({ train, childr
           const arr = formatMinutes(item.arrivalMinutes);
           const dep = formatMinutes(item.departureMinutes);
           const halt = calculateHalt(item.arrivalMinutes, item.departureMinutes);
-          
+
           // Show date only if it's the first stop or day changes
           const prevDay = idx > 0 ? routeData[idx - 1].day : null;
           const showDate = idx === 0 || (prevDay !== null && item.day !== prevDay);
@@ -141,7 +141,7 @@ const TrainScheduleDrawer: React.FC<TrainScheduleDrawerProps> = ({ train, childr
         <DrawerHeader className="border-b px-4 py-4 sm:px-6">
           <DrawerTitle className="flex items-center gap-3 text-lg sm:text-xl font-bold">
             <DrawerClose asChild>
-                <ArrowLeft className="w-5 h-5 cursor-pointer text-muted-foreground hover:text-foreground" />
+              <ArrowLeft className="w-5 h-5 cursor-pointer text-muted-foreground hover:text-foreground" />
             </DrawerClose>
             {train.trainNumber} - {train.trainName.toUpperCase()}
           </DrawerTitle>
@@ -161,12 +161,12 @@ const TrainScheduleDrawer: React.FC<TrainScheduleDrawerProps> = ({ train, childr
         <div className="flex items-center px-4 sm:px-6 py-3 bg-accent/50 border-b text-xs sm:text-sm font-bold text-muted-foreground">
           <div className="w-8 sm:w-10">S.no</div>
           <div className="flex-1 ml-8 sm:ml-12">Station</div>
-          <div className="w-16 sm:w-20 text-right">Arr.<br/>Dep.</div>
+          <div className="w-16 sm:w-20 text-right">Arr.<br />Dep.</div>
           <div className="w-12 sm:w-16 text-right">Halt</div>
         </div>
 
         {/* Schedule List / Content */}
-        <div className="overflow-y-auto flex-1 px-4 sm:px-6 pb-6 pt-2 min-h-[300px] flex flex-col">
+        <div className="overflow-y-auto flex-1 px-4 sm:px-6 pb-6 pt-2 min-h-75 flex flex-col">
           {loading ? (
             <div className="flex-1 flex flex-col items-center justify-center py-12">
               <Loader2 className="w-10 h-10 text-primary animate-spin mb-4" />
@@ -177,7 +177,7 @@ const TrainScheduleDrawer: React.FC<TrainScheduleDrawerProps> = ({ train, childr
               <AlertCircle className="w-12 h-12 text-destructive mb-4" />
               <h3 className="text-lg font-bold text-foreground">Failed to load schedule</h3>
               <p className="text-muted-foreground text-sm max-w-xs mx-auto mb-6">{error}</p>
-              <button 
+              <button
                 onClick={fetchSchedule}
                 className="px-6 py-2 bg-primary text-primary-foreground rounded-lg font-semibold text-sm hover:brightness-105 transition-all"
               >
@@ -192,7 +192,7 @@ const TrainScheduleDrawer: React.FC<TrainScheduleDrawerProps> = ({ train, childr
                   <div className="flex mb-1 mt-2">
                     <div className="w-8 sm:w-10"></div>
                     <div className="w-6 sm:w-8 flex justify-center relative">
-                      <div className="absolute top-1/2 bottom-0 w-[3px] bg-border/60 z-0" />
+                      <div className="absolute top-1/2 bottom-0 w-0.75 bg-border/60 z-0" />
                     </div>
                     <div className="bg-accent text-foreground text-xs font-bold px-3 py-1.5 rounded-full shadow-sm ml-2 sm:ml-4 z-10">
                       {stop.date}
@@ -202,22 +202,22 @@ const TrainScheduleDrawer: React.FC<TrainScheduleDrawerProps> = ({ train, childr
 
                 {/* Station Row */}
                 <div className={`flex items-stretch relative ${stop.isOrigin ? 'bg-emerald-500/10 -mx-4 sm:-mx-6 px-4 sm:px-6 rounded-lg' : ''}`}>
-                  
+
                   {/* S.no */}
                   <div className="w-8 sm:w-10 py-4 flex items-center text-xs sm:text-sm font-medium text-muted-foreground">
                     {stop.sno}
                   </div>
-                  
+
                   {/* Timeline Icon */}
                   <div className="w-6 sm:w-8 flex justify-center relative py-4">
                     {/* Timeline connecting line */}
-                    <div className={`absolute w-[3px] bg-border/60 z-0 
+                    <div className={`absolute w-0.75 bg-border/60 z-0 
                       ${idx === 0 && stop.date ? 'top-0 bottom-0' : ''} 
                       ${idx === 0 && !stop.date ? 'top-1/2 bottom-0' : ''} 
                       ${idx > 0 && idx < schedule.length - 1 ? 'top-0 bottom-0' : ''} 
-                      ${idx === schedule.length - 1 ? 'top-0 bottom-1/2' : ''}`} 
+                      ${idx === schedule.length - 1 ? 'top-0 bottom-1/2' : ''}`}
                     />
-                    
+
                     {/* Circle / Icon */}
                     <div className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center border-2 bg-background z-10 mt-auto mb-auto ${stop.isOrigin ? 'border-emerald-500 text-emerald-600' : 'border-border'}`}>
                       {stop.isOrigin ? <TrainFront size={14} /> : <div className="w-2 h-2 rounded-full bg-border" />}
