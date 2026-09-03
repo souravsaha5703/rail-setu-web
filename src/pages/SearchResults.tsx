@@ -1,78 +1,92 @@
-import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import type { RootState } from '../store';
+import { setCachedDirectTrains } from '../store/searchSlice';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import TrainCard from '../components/TrainCard';
 import type { TrainInfo } from '../components/TrainCard';
-import { Calendar as CalendarIcon, Loader2, AlertCircle, Search, Route as RouteIcon } from 'lucide-react';
+import { Calendar as CalendarIcon, Loader2, AlertCircle, Search, Route as RouteIcon, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const SearchResults: React.FC = () => {
     const navigate = useNavigate();
-    const { from, to, date } = useSelector((state: RootState) => state.search);
+    const dispatch = useDispatch();
+    const { from, to, date, directTrainsCache } = useSelector((state: RootState) => state.search);
     const [trains, setTrains] = useState<TrainInfo[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const fetchTrains = useCallback(async (forceRefresh = false) => {
+        if (!from?.code || !to?.code) {
+            setLoading(false);
+            return;
+        }
+
+        // Format date as DD-MM-YYYY for the backend
+        let formattedDate = "";
+        if (date) {
+            const [year, month, day] = date.split('-');
+            formattedDate = `${day}-${month}-${year}`;
+        } else {
+            const today = new Date();
+            formattedDate = today.toLocaleDateString('en-GB').replace(/\//g, '-');
+        }
+
+        const cacheKey = `${from.code}_${to.code}_${formattedDate}`;
+
+        // Return cached results instantly if available and not a forced refresh
+        if (!forceRefresh && directTrainsCache && directTrainsCache[cacheKey]) {
+            setTrains(directTrainsCache[cacheKey]);
+            setLoading(false);
+            setError(null);
+            return;
+        }
+
+        try {
+            setLoading(true);
+            setError(null);
+
+            const params = new URLSearchParams({
+                source: from.code,
+                destination: to.code,
+                date: formattedDate
+            });
+
+            const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+            const response = await fetch(`${apiUrl}/api/trains/between?${params.toString()}`);
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch trains: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+
+            // Adjusted parsing based on user's provided response structure
+            if (result.status === 200 && result.response && result.response.success) {
+                const trainList = result.response.data || [];
+                setTrains(trainList);
+                dispatch(setCachedDirectTrains({ key: cacheKey, trains: trainList }));
+            } else if (result.status === 404 || (result.response && result.response.success === false)) {
+                setTrains([]);
+                if (result.status !== 404) {
+                    setError(result.message || "No trains found");
+                }
+                dispatch(setCachedDirectTrains({ key: cacheKey, trains: [] }));
+            } else {
+                throw new Error(result.message || "Failed to load trains");
+            }
+        } catch (err) {
+            console.error("Error fetching trains:", err);
+            setError(err instanceof Error ? err.message : "An unexpected error occurred");
+        } finally {
+            setLoading(false);
+        }
+    }, [from?.code, to?.code, date, directTrainsCache, dispatch]);
+
     useEffect(() => {
-        const fetchTrains = async () => {
-            if (!from?.code || !to?.code) {
-                setLoading(false);
-                return;
-            }
-
-            try {
-                setLoading(true);
-                setError(null);
-
-                // Format date as DD-MM-YYYY for the backend
-                let formattedDate = "";
-                if (date) {
-                    const [year, month, day] = date.split('-');
-                    formattedDate = `${day}-${month}-${year}`;
-                } else {
-                    const today = new Date();
-                    formattedDate = today.toLocaleDateString('en-GB').replace(/\//g, '-');
-                }
-
-                const params = new URLSearchParams({
-                    source: from.code,
-                    destination: to.code,
-                    date: formattedDate
-                });
-
-                const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
-                // Updated endpoint to /api/trains/between
-                const response = await fetch(`${apiUrl}/api/trains/between?${params.toString()}`);
-
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch trains: ${response.statusText}`);
-                }
-
-                const result = await response.json();
-
-                // Adjusted parsing based on user's provided response structure
-                if (result.status === 200 && result.response && result.response.success) {
-                    setTrains(result.response.data);
-                } else if (result.status === 404 || (result.response && result.response.success === false)) {
-                    setTrains([]);
-                    if (result.status !== 404) {
-                        setError(result.message || "No trains found");
-                    }
-                } else {
-                    throw new Error(result.message || "Failed to load trains");
-                }
-            } catch (err) {
-                console.error("Error fetching trains:", err);
-                setError(err instanceof Error ? err.message : "An unexpected error occurred");
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchTrains();
-    }, [from, to, date]);
+    }, [from?.code, to?.code, date]);
 
     // Determine if we should show the Smart Connect rescue feature
     const hasAvailableSeats = trains.some(train =>
@@ -109,12 +123,22 @@ const SearchResults: React.FC = () => {
                             Journey Date: <span className="text-muted-foreground font-normal">{baseDate.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
                         </span>
                     </div>
-                    <button
-                        onClick={() => navigate('/')}
-                        className="text-xs font-bold text-primary hover:underline cursor-pointer"
-                    >
-                        Modify Search
-                    </button>
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={() => fetchTrains(true)}
+                            className="text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer flex items-center gap-1.5 transition-colors"
+                            title="Refresh availability"
+                        >
+                            <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
+                            <span>Refresh</span>
+                        </button>
+                        <button
+                            onClick={() => navigate('/')}
+                            className="text-xs font-bold text-primary hover:underline cursor-pointer"
+                        >
+                            Modify Search
+                        </button>
+                    </div>
                 </div>
 
                 {/* Train List / States */}

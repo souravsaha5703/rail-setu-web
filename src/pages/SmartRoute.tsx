@@ -1,23 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import type { RootState } from '../store';
+import { setCachedSmartRoutes } from '../store/searchSlice';
+import type { SmartRouteResult } from '../store/searchSlice';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { ArrowRight, Sparkles, Loader2, AlertCircle, Search } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Sparkles, Loader2, AlertCircle, Search, RefreshCw } from 'lucide-react';
 import SmartRouteCard from '../components/SmartRouteCard';
-import type { TrainInfo } from '../components/TrainCard';
 
-interface SmartRouteResult {
-    id: number;
-    junction: { name: string; code: string };
-    waitTime: string;
-    leg1: TrainInfo;
-    leg2: TrainInfo;
-    leg1DepartureDate?: string;
-    leg1ArrivalDate?: string;
-    leg2DepartureDate?: string;
-    leg2ArrivalDate?: string;
-}
+export type { SmartRouteResult };
 
 const formatWaitTime = (minutes: number) => {
     const h = Math.floor(minutes / 60);
@@ -26,12 +18,19 @@ const formatWaitTime = (minutes: number) => {
 };
 
 const SmartRoute: React.FC = () => {
-    const { from, to, date } = useSelector((state: RootState) => state.search);
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const { from, to, date, smartRoutesCache } = useSelector((state: RootState) => state.search);
     const [routes, setRoutes] = useState<SmartRouteResult[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [progress, setProgress] = useState<string>("Initializing smart search...");
     const [visibleCount, setVisibleCount] = useState(10);
+    const [forceRefreshCounter, setForceRefreshCounter] = useState(0);
+
+    const handleRefresh = useCallback(() => {
+        setForceRefreshCounter(prev => prev + 1);
+    }, []);
 
     useEffect(() => {
         if (!from?.code || !to?.code) {
@@ -39,13 +38,6 @@ const SmartRoute: React.FC = () => {
             setLoading(false);
             return;
         }
-
-        let isSubscribed = true;
-        let hasCompleted = false;
-        setLoading(true);
-        setError(null);
-        setVisibleCount(10);
-        setProgress("Connecting to Route-Breaker Engine...");
 
         let formattedDate = "";
         if (date) {
@@ -55,6 +47,24 @@ const SmartRoute: React.FC = () => {
             const today = new Date();
             formattedDate = today.toLocaleDateString('en-GB').replace(/\//g, '-');
         }
+
+        const cacheKey = `${from.code}_${to.code}_${formattedDate}`;
+
+        // 1. Check if cached routes exist for this journey (and not a forced refresh)
+        if (forceRefreshCounter === 0 && smartRoutesCache && smartRoutesCache[cacheKey]) {
+            const cached = smartRoutesCache[cacheKey];
+            setRoutes(cached);
+            setLoading(false);
+            setError(cached.length === 0 ? "No confirmed seat combinations found via junctions." : null);
+            return;
+        }
+
+        let isSubscribed = true;
+        let hasCompleted = false;
+        setLoading(true);
+        setError(null);
+        setVisibleCount(10);
+        setProgress("Connecting to Route-Breaker Engine...");
 
         const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
         const url = `${apiUrl}/api/trains/smart-connect?sourceCode=${from.code}&destCode=${to.code}&date=${formattedDate}`;
@@ -135,11 +145,13 @@ const SmartRoute: React.FC = () => {
                         });
 
                         setRoutes(generatedRoutes);
+                        dispatch(setCachedSmartRoutes({ key: cacheKey, routes: generatedRoutes }));
                         if (generatedRoutes.length === 0) {
                             setError("No confirmed seat combinations found via junctions.");
                         }
                     } else {
                         setError("No smart routes found.");
+                        dispatch(setCachedSmartRoutes({ key: cacheKey, routes: [] }));
                     }
                     setLoading(false);
                     eventSource.close();
@@ -173,13 +185,32 @@ const SmartRoute: React.FC = () => {
             hasCompleted = true;
             eventSource.close();
         };
-    }, [from?.code, to?.code, date]);
+    }, [from?.code, to?.code, date, forceRefreshCounter, smartRoutesCache, dispatch]);
 
     return (
         <div className="min-h-screen bg-card flex flex-col">
             <Navbar />
 
             <main className="flex-1 w-full max-w-4xl mx-auto px-4 pt-24 pb-8 sm:pt-28">
+                {/* Navigation and Actions */}
+                <div className="mb-6 flex items-center justify-between flex-wrap gap-3">
+                    <button
+                        onClick={() => navigate('/search')}
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer transition-colors bg-accent/40 hover:bg-accent px-3.5 py-2 rounded-xl border border-border/50 shadow-xs"
+                    >
+                        <ArrowLeft size={14} />
+                        Back to Direct Trains
+                    </button>
+                    <button
+                        onClick={handleRefresh}
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer transition-colors bg-accent/40 hover:bg-accent px-3.5 py-2 rounded-xl border border-border/50 shadow-xs"
+                        title="Re-run Route-Breaker search"
+                    >
+                        <RefreshCw size={13} className={loading ? "animate-spin" : ""} />
+                        <span>Refresh Routes</span>
+                    </button>
+                </div>
+
                 <div className="mb-8">
                     <h1 className="text-2xl sm:text-3xl font-bold text-foreground flex items-center flex-wrap gap-3">
                         <span>{from?.name || "Select Source"}</span>
@@ -220,8 +251,8 @@ const SmartRoute: React.FC = () => {
                             <h3 className="text-lg font-bold text-foreground">Couldn't find routes</h3>
                             <p className="text-muted-foreground text-sm max-w-md">{error}</p>
                             <button
-                                onClick={() => window.location.reload()}
-                                className="mt-6 px-6 py-2 bg-primary text-primary-foreground rounded-lg font-semibold text-sm hover:brightness-105 transition-all"
+                                onClick={handleRefresh}
+                                className="mt-6 px-6 py-2 bg-primary text-primary-foreground rounded-lg font-semibold text-sm hover:brightness-105 transition-all cursor-pointer"
                             >
                                 Try Again
                             </button>
